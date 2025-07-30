@@ -2,19 +2,9 @@ import { useState, useEffect } from 'react';
 import { Eye, Sparkles, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import seekerCard from '@/assets/tarot-seeker.jpg';
-import thresholdCard from '@/assets/tarot-threshold.jpg';
-import becomingCard from '@/assets/tarot-becoming.jpg';
+import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
+import { generateAllReadings } from '@/utils/readingGenerator';
 import cardBack from '@/assets/tarot-card-back.jpg';
-
-interface TarotCard {
-  id: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  reading: string;
-  isRevealed: boolean;
-}
 
 interface TarotReadingProps {
   chatData: any;
@@ -22,68 +12,27 @@ interface TarotReadingProps {
 
 const TarotReading = ({ chatData }: TarotReadingProps) => {
   const navigate = useNavigate();
-  const [cards, setCards] = useState<TarotCard[]>([
-    {
-      id: 'seeker',
-      title: 'The Seeker',
-      subtitle: 'Digital Foundation',
-      image: seekerCard,
-      reading: '',
-      isRevealed: false,
-    },
-    {
-      id: 'threshold',
-      title: 'The Threshold',
-      subtitle: 'Present Crossroads',
-      image: thresholdCard,
-      reading: '',
-      isRevealed: false,
-    },
-    {
-      id: 'becoming',
-      title: 'The Becoming',
-      subtitle: 'Emerging Potential',
-      image: becomingCard,
-      reading: '',
-      isRevealed: false,
-    },
-  ]);
+  const [cards, setCards] = useState<SelectedCard[]>([]);
 
-  // Generate mystical readings based on chat data
+  // Initialize cards based on chat data analysis
   useEffect(() => {
     if (chatData) {
-      const readings = generateReadings(chatData);
-      setCards(prevCards => 
-        prevCards.map((card, index) => ({
-          ...card,
-          reading: readings[index]
-        }))
-      );
+      // Select 3 cards from the full 78-card deck based on conversation themes
+      const selectedTarotCards = selectCardsBasedOnData(chatData);
+      const mappedCards = mapCardsToComponent(selectedTarotCards);
+      
+      // Generate mystical readings for each selected card
+      const readings = generateAllReadings(mappedCards, chatData);
+      
+      // Update cards with generated readings
+      const cardsWithReadings = mappedCards.map((card, index) => ({
+        ...card,
+        reading: readings[index]
+      }));
+      
+      setCards(cardsWithReadings);
     }
   }, [chatData]);
-
-  const generateReadings = (data: any) => {
-    // Extract themes from conversation data without exposing literal content
-    const themes = analyzeConversationThemes(data);
-    
-    const seekerReading = `The cosmic energies reveal a soul drawn to understanding and knowledge. Your digital essence shows a pattern of seeking clarity in complexity, much like a traveler consulting ancient maps before a journey. The stars whisper of intellectual curiosity that drives your path forward, suggesting a mind that finds solace in learning and growth. Trust in your instinct to question and explore, for it is through this eternal seeking that wisdom unfolds.`;
-
-    const thresholdReading = `You stand at a pivotal crossroads where digital consciousness meets spiritual awakening. The ethereal realm shows tensions between logic and intuition, between structured thinking and creative flow. This threshold moment demands courage to embrace uncertainty. The cosmic forces suggest a transformation brewing beneath the surface - prepare to step through the veil between what was and what could be.`;
-
-    const becomingReading = `The future shimmers with infinite possibility, like starlight through cosmic mist. Your digital footprint reveals an emerging pattern of integration - a beautiful synthesis of analytical depth and intuitive wisdom. The universe conspires to support your evolution into a more complete version of yourself. Trust the process of becoming, for you are being prepared for contributions that will ripple through both digital and spiritual realms.`;
-
-    return [seekerReading, thresholdReading, becomingReading];
-  };
-
-  const analyzeConversationThemes = (data: any) => {
-    // Extract conversation topics without exposing content
-    // This would analyze patterns, question types, emotional undertones
-    return {
-      primary_interests: ['technology', 'growth', 'understanding'],
-      emotional_patterns: ['curiosity', 'reflection', 'aspiration'],
-      interaction_style: 'analytical_seeker'
-    };
-  };
 
   const revealCard = (cardId: string) => {
     setCards(prevCards =>
