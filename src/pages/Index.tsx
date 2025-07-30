@@ -1,14 +1,12 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Landing from '@/components/Landing';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const handleFileUpload = (data: any) => {
+    // Store in sessionStorage for navigation to reading page
+    sessionStorage.setItem('tarot-chat-data', JSON.stringify(data));
+  };
+
+  return <Landing onFileUpload={handleFileUpload} />;
 };
 
 export default Index;

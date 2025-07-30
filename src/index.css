@@ -2,41 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Mystical Digital Oracle Design System - Modern Witch Aesthetic */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Deep mystical navy backgrounds */
+    --background: 225 35% 8%;
+    --foreground: 45 100% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card surfaces with subtle cosmic glow */
+    --card: 225 25% 12%;
+    --card-foreground: 45 90% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 225 25% 12%;
+    --popover-foreground: 45 90% 92%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Bright cyan primary for mystical elements */
+    --primary: 185 95% 65%;
+    --primary-foreground: 225 35% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Soft lavender secondary */
+    --secondary: 280 45% 75%;
+    --secondary-foreground: 225 35% 8%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted cosmic elements */
+    --muted: 225 15% 20%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Pink accent for magical touches */
+    --accent: 315 75% 75%;
+    --accent-foreground: 225 35% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Mystical gold for special elements */
+    --mystic-gold: 45 85% 78%;
+    --mystic-gold-foreground: 225 35% 8%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Cosmic energy glow */
+    --cosmic-glow: 185 95% 65%;
+    --ethereal-pink: 315 75% 75%;
 
-    --radius: 0.5rem;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 100% 95%;
+
+    --border: 225 15% 25%;
+    --input: 225 15% 18%;
+    --ring: 185 95% 65%;
+
+    --radius: 0.75rem;
+
+    /* Gradients for mystical effects */
+    --gradient-cosmic: linear-gradient(135deg, hsl(185 95% 65%), hsl(280 45% 75%));
+    --gradient-ethereal: linear-gradient(45deg, hsl(315 75% 75%), hsl(280 45% 75%));
+    --gradient-midnight: linear-gradient(180deg, hsl(225 35% 8%), hsl(225 25% 12%));
+    
+    /* Glows and shadows */
+    --glow-cyan: 0 0 30px hsl(185 95% 65% / 0.5);
+    --glow-pink: 0 0 25px hsl(315 75% 75% / 0.4);
+    --shadow-mystical: 0 10px 40px hsl(225 35% 8% / 0.6);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +123,19 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  
+  .rotate-y-180 {
+    transform: rotateY(180deg);
   }
 }
