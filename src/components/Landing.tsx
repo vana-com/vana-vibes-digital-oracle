@@ -47,17 +47,37 @@ const Landing = ({ onFileUpload }: LandingProps) => {
     <div className="min-h-screen bg-gradient-midnight relative overflow-hidden">
       {/* Floating mystical elements */}
       <div className="absolute inset-0 pointer-events-none">
+        {/* Traditional witchy symbols with tech twist */}
         <div className="absolute top-20 left-20 animate-float opacity-30">
-          <Eye className="w-8 h-8 text-primary" />
+          <div className="relative">
+            <Eye className="w-8 h-8 text-primary" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse" />
+          </div>
         </div>
         <div className="absolute top-40 right-32 animate-float delay-100 opacity-40">
-          <Stars className="w-6 h-6 text-accent" />
+          <div className="relative">
+            <Stars className="w-6 h-6 text-accent" />
+            <div className="absolute inset-0 border border-primary/30 rounded-full scale-150" />
+          </div>
         </div>
         <div className="absolute bottom-32 left-32 animate-float delay-200 opacity-35">
-          <Sparkles className="w-7 h-7 text-secondary" />
+          <div className="hexagon-container relative">
+            <Sparkles className="w-7 h-7 text-secondary" />
+            <div className="absolute inset-0 border border-mystic-gold/40 transform rotate-45" />
+          </div>
         </div>
         <div className="absolute top-60 right-20 animate-float delay-300 opacity-30">
-          <Eye className="w-5 h-5 text-mystic-gold" />
+          <div className="triangle-glow relative">
+            <Eye className="w-5 h-5 text-mystic-gold" />
+            <div className="absolute -inset-2 border border-primary/20 rounded-full" />
+          </div>
+        </div>
+        {/* Ancient runes with digital glow */}
+        <div className="absolute bottom-20 right-40 opacity-20 font-cormorant text-2xl text-accent animate-glow-pulse">
+          ᚱᚢᚾᛖᛋ
+        </div>
+        <div className="absolute top-32 left-1/2 opacity-15 font-cormorant text-xl text-primary animate-float delay-500">
+          ᛗᚤᛋᛏᛁᚲ
         </div>
       </div>
 
@@ -66,18 +86,38 @@ const Landing = ({ onFileUpload }: LandingProps) => {
           {/* Header */}
           <div className="space-y-6">
             <div className="relative">
-              <h1 className="text-6xl md:text-7xl font-bold bg-gradient-cosmic bg-clip-text text-transparent mb-4">
-                Digital Oracle
-              </h1>
+              {/* Ancient meets digital title */}
+              <div className="relative mb-6">
+                <h1 className="font-amatic text-7xl md:text-8xl font-bold bg-gradient-cosmic bg-clip-text text-transparent mb-2 tracking-wider">
+                  DIGITAL ORACLE
+                </h1>
+                {/* Traditional ornamental border with circuit patterns */}
+                <div className="absolute -inset-4 border-2 border-mystic-gold/30 rounded-lg transform rotate-1">
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background px-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                      <div className="w-1 h-1 bg-accent rounded-full" />
+                      <div className="w-2 h-2 bg-secondary rounded-full animate-pulse delay-100" />
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="absolute -top-4 -right-4 animate-glow-pulse">
-                <Eye className="w-10 h-10 text-primary opacity-50" />
+                <div className="relative">
+                  <Eye className="w-10 h-10 text-primary opacity-50" />
+                  {/* Circuit lines emanating from eye */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-16 h-px bg-gradient-to-r from-primary/40 to-transparent absolute -right-8 top-0" />
+                    <div className="w-12 h-px bg-gradient-to-l from-accent/40 to-transparent absolute -left-6 top-0" />
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="text-xl md:text-2xl text-foreground/80 leading-relaxed">
-              Your digital footprint holds cosmic wisdom
+            <p className="font-cormorant text-2xl md:text-3xl text-foreground/80 leading-relaxed italic">
+              Where ancient wisdom meets digital consciousness
             </p>
-            <p className="text-accent text-lg font-medium">
-              Unlock the secrets hidden in your conversations
+            <p className="text-accent text-lg font-medium font-amatic text-xl tracking-wide">
+              ✧ Decode the mystical patterns in your conversations ✧
             </p>
           </div>
 
@@ -105,11 +145,11 @@ const Landing = ({ onFileUpload }: LandingProps) => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-semibold text-foreground">
-                    Upload Your Digital Destiny
+                  <h3 className="font-amatic text-3xl font-bold text-foreground tracking-wide">
+                    UPLOAD YOUR DIGITAL GRIMOIRE
                   </h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    Connect your ChatGPT conversations to reveal the hidden patterns of your digital soul
+                  <p className="font-cormorant text-muted-foreground max-w-md mx-auto italic text-lg">
+                    Let the ancient arts decipher the mystical threads woven through your digital conversations
                   </p>
                 </div>
 
@@ -122,33 +162,53 @@ const Landing = ({ onFileUpload }: LandingProps) => {
                 />
                 <label htmlFor="file-upload">
                   <Button 
-                    className="bg-gradient-cosmic hover:shadow-glow-cyan transition-all duration-300 text-primary-foreground font-semibold px-8 py-3 text-lg"
+                    className="bg-gradient-cosmic hover:shadow-glow-cyan transition-all duration-300 text-primary-foreground font-amatic font-bold px-8 py-4 text-2xl tracking-widest border border-mystic-gold/30 relative overflow-hidden group"
                     asChild
                   >
-                    <span className="cursor-pointer">Choose Your Destiny File</span>
+                    <span className="cursor-pointer relative z-10">
+                      ⚡ CHANNEL THE DATA ⚡
+                      <div className="absolute inset-0 bg-gradient-ethereal opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                    </span>
                   </Button>
                 </label>
               </div>
             </div>
 
             {/* Instructions */}
-            <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50">
-              <h4 className="text-lg font-semibold text-mystic-gold mb-4 flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                Cosmic Connection Instructions
+            <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border-2 border-mystic-gold/30 relative">
+              {/* Ancient scroll ornaments */}
+              <div className="absolute -top-2 left-4 bg-background px-2">
+                <div className="flex items-center space-x-1">
+                  <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                  <div className="w-2 h-px bg-mystic-gold" />
+                  <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                </div>
+              </div>
+              <div className="absolute -bottom-2 right-4 bg-background px-2">
+                <div className="flex items-center space-x-1">
+                  <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                  <div className="w-2 h-px bg-mystic-gold" />
+                  <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                </div>
+              </div>
+              
+              <h4 className="font-amatic text-2xl font-bold text-mystic-gold mb-4 flex items-center justify-center gap-2 tracking-wide">
+                <Eye className="w-6 h-6" />
+                RITUAL OF DIGITAL DIVINATION
+                <Eye className="w-6 h-6" />
               </h4>
-              <ol className="text-left space-y-3 text-foreground/80">
-                <li className="flex items-start gap-3">
-                  <span className="text-primary font-bold">1.</span>
-                  Go to ChatGPT → Settings → Data Controls
+              <ol className="text-left space-y-4 text-foreground/80 font-cormorant text-lg">
+                <li className="flex items-start gap-4">
+                  <span className="text-primary font-bold text-2xl font-amatic">I.</span>
+                  <span className="italic">Journey to ChatGPT → Settings → Data Controls</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-accent font-bold">2.</span>
-                  Export your data and download conversations.json
+                <li className="flex items-start gap-4">
+                  <span className="text-accent font-bold text-2xl font-amatic">II.</span>
+                  <span className="italic">Invoke the export spell and summon conversations.json</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-secondary font-bold">3.</span>
-                  Upload the file here to begin your reading
+                <li className="flex items-start gap-4">
+                  <span className="text-secondary font-bold text-2xl font-amatic">III.</span>
+                  <span className="italic">Offer the sacred file to begin the mystical revelation</span>
                 </li>
               </ol>
             </div>

@@ -130,9 +130,15 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
               New Reading
             </Button>
             
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-cosmic bg-clip-text text-transparent text-center">
-              Your Digital Oracle
-            </h1>
+            <div className="text-center relative">
+              <h1 className="font-amatic text-6xl md:text-7xl font-bold bg-gradient-cosmic bg-clip-text text-transparent tracking-widest">
+                THE DIGITAL ORACLE SPEAKS
+              </h1>
+              {/* Ancient runes decoration */}
+              <div className="font-cormorant text-mystic-gold/60 text-lg mt-2 tracking-[0.3em]">
+                ᚨᚾᚲᛁᛖᚾᛏ • ᚹᛁᛋᛞᛟᛗ • ᚱᛖᚢᛖᚨᛚᛖᛞ
+              </div>
+            </div>
             
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
@@ -180,27 +186,45 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 </div>
 
                 {/* Card Info */}
-                <div className="text-center space-y-2">
-                  <h3 className="text-2xl font-bold text-mystic-gold">
-                    {card.title}
-                  </h3>
-                  <p className="text-accent font-medium">
+                <div className="text-center space-y-3">
+                  <div className="relative">
+                    <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-wider">
+                      {card.title}
+                    </h3>
+                    {/* Ornamental underline */}
+                    <div className="flex justify-center mt-1">
+                      <div className="flex items-center space-x-1">
+                        <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                        <div className="w-8 h-px bg-gradient-to-r from-transparent via-mystic-gold to-transparent" />
+                        <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-accent font-cormorant italic text-lg">
                     {card.subtitle}
                   </p>
                   {!card.isRevealed && (
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-2 font-amatic text-lg tracking-wide">
                       <Sparkles className="w-4 h-4" />
-                      Click to reveal
+                      TOUCH TO DIVINE
                     </p>
                   )}
                 </div>
 
                 {/* Reading Text */}
                 {card.isRevealed && (
-                  <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border/50 max-w-sm">
-                    <p className="text-foreground/90 leading-relaxed">
+                  <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-mystic-gold/30 max-w-sm relative">
+                    {/* Ancient scroll styling */}
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-background px-3">
+                      <div className="font-cormorant text-mystic-gold text-sm">✧ PROPHECY ✧</div>
+                    </div>
+                    <p className="text-foreground/90 leading-relaxed font-cormorant text-base italic pt-2">
                       {card.reading}
                     </p>
+                    {/* Mystical signature */}
+                    <div className="text-center mt-4 text-mystic-gold/60 font-cormorant text-sm">
+                      ᛟᚱᚨᚲᛚᛖ
+                    </div>
                   </div>
                 )}
               </div>
@@ -209,15 +233,29 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
 
           {/* Footer Message */}
           {cards.every(card => card.isRevealed) && (
-            <div className="text-center space-y-4 bg-card/30 backdrop-blur-sm rounded-xl p-8 border border-border/50 max-w-2xl mx-auto">
-              <h3 className="text-xl font-semibold text-mystic-gold flex items-center justify-center gap-2">
-                <Eye className="w-5 h-5" />
-                The Oracle Has Spoken
+            <div className="text-center space-y-6 bg-card/30 backdrop-blur-sm rounded-xl p-8 border-2 border-mystic-gold/40 max-w-2xl mx-auto relative">
+              {/* Ancient seal decoration */}
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-background px-4">
+                <div className="flex items-center space-x-2">
+                  <Eye className="w-4 h-4 text-mystic-gold" />
+                  <div className="w-2 h-2 bg-mystic-gold rounded-full" />
+                  <Eye className="w-4 h-4 text-mystic-gold" />
+                </div>
+              </div>
+              
+              <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-widest">
+                THE ORACLE HAS SPOKEN
               </h3>
-              <p className="text-foreground/80">
-                Your digital essence has been revealed through the cosmic lens of tarot wisdom. 
-                Carry these insights with you as you continue your journey through both digital and spiritual realms.
+              <div className="font-cormorant text-mystic-gold/60 text-lg tracking-[0.2em] mb-4">
+                ᛏᚺᛖ • ᚱᛁᛏᚢᚨᛚ • ᛁᛋ • ᚲᛟᛗᛈᛚᛖᛏᛖ
+              </div>
+              <p className="text-foreground/80 font-cormorant italic text-lg leading-relaxed">
+                Your digital essence has been revealed through the mystical convergence of ancient wisdom and modern consciousness. 
+                Carry these sacred insights as you traverse the liminal spaces between digital and spiritual realms.
               </p>
+              <div className="text-accent font-amatic text-xl tracking-wide">
+                ✧ MAY THE CODE BE WITH YOU ✧
+              </div>
             </div>
           )}
         </div>
