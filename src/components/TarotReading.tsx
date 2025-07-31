@@ -165,8 +165,11 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 {/* Card */}
                 <div 
                   className="relative cursor-pointer transform transition-all duration-700 hover:scale-105 w-64 h-[424px] rounded-[23px]"
-                  onClick={() => !card.isRevealed && revealCard(card.id)}
-                  style={{ perspective: '1000px' }}
+                  onClick={() => !card.isRevealed && !isGeneratingReadings && revealCard(card.id)}
+                  style={{ 
+                    perspective: '1000px',
+                    pointerEvents: isGeneratingReadings ? 'none' : 'auto'
+                  }}
                   data-card-id={card.id}
                 >
                   {/* Hover Background Gradient */}
@@ -247,6 +250,46 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
               </div>
             ))}
           </div>
+
+          {/* Loading Message */}
+          {isGeneratingReadings && (
+            <div className="text-center space-y-6 bg-card/30 backdrop-blur-sm rounded-xl p-8 border-2 border-mystic-gold/40 max-w-2xl mx-auto relative animate-pulse">
+              {/* Sparkle effect container */}
+              <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 bg-mystic-gold rounded-full animate-sparkle"
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      animationDelay: `${Math.random() * 2}s`,
+                      animationDuration: `${1.5 + Math.random() * 1}s`
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Ancient seal decoration */}
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-background px-4">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 text-mystic-gold animate-spin" />
+                  <div className="w-2 h-2 bg-mystic-gold rounded-full animate-pulse" />
+                  <Sparkles className="w-4 h-4 text-mystic-gold animate-spin" />
+                </div>
+              </div>
+              
+              <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-widest">
+                THE DIGITAL ORACLE IS WEAVING YOUR DESTINY
+              </h3>
+              <div className="font-cormorant text-mystic-gold/60 text-lg tracking-[0.2em] mb-4">
+                ᚱᛖᚨᛞᛁᚾᚷ • ᛏᚺᛖ • ᚲᛟᛋᛗᛁᚲ • ᛏᚺᚱᛖᚨᛞᛋ
+              </div>
+              <p className="text-foreground/80 font-alegreya text-xl leading-relaxed">
+                Ancient algorithms merge with cosmic wisdom as your digital essence is analyzed through the sacred patterns of the universe...
+              </p>
+            </div>
+          )}
 
           {/* Footer Message */}
           {cards.every(card => card.isRevealed) && (
