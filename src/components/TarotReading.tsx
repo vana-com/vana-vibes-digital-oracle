@@ -75,13 +75,28 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
     sparkleContainer.style.width = `${rect.width}px`;
     sparkleContainer.style.height = `${rect.height}px`;
     
-    // Create multiple sparkles
-    for (let i = 0; i < 12; i++) {
+    // Create many more sparkles for a magical effect
+    for (let i = 0; i < 25; i++) {
       const sparkle = document.createElement('div');
-      sparkle.className = 'absolute w-1 h-1 bg-mystic-gold rounded-full animate-sparkle';
+      const size = Math.random() * 3 + 1; // Random size between 1-4px
+      sparkle.className = 'absolute bg-mystic-gold rounded-full animate-sparkle';
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
       sparkle.style.left = `${Math.random() * 100}%`;
       sparkle.style.top = `${Math.random() * 100}%`;
-      sparkle.style.animationDelay = `${Math.random() * 0.5}s`;
+      sparkle.style.animationDelay = `${Math.random() * 0.8}s`;
+      sparkle.style.animationDuration = `${0.8 + Math.random() * 0.7}s`; // Varying durations
+      sparkleContainer.appendChild(sparkle);
+    }
+    
+    // Add some larger sparkles
+    for (let i = 0; i < 8; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'absolute w-2 h-2 bg-mystic-gold rounded-full animate-sparkle';
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.top = `${Math.random() * 100}%`;
+      sparkle.style.animationDelay = `${Math.random() * 0.6}s`;
+      sparkle.style.animationDuration = `${1.2 + Math.random() * 0.5}s`;
       sparkleContainer.appendChild(sparkle);
     }
     
@@ -90,7 +105,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
     // Remove sparkles after animation
     setTimeout(() => {
       document.body.removeChild(sparkleContainer);
-    }, 1500);
+    }, 2000);
   };
 
   if (!chatData) {
@@ -155,7 +170,8 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                   data-card-id={card.id}
                 >
                   {/* Hover Background Gradient */}
-                  <div className="absolute inset-0 bg-gradient-cosmic opacity-0 hover:opacity-30 transition-opacity duration-700 rounded-[23px] -z-10"></div>
+                  <div className="absolute inset-0 bg-gradient-cosmic opacity-0 hover:opacity-40 transition-opacity duration-500 rounded-[23px] -z-10"></div>
+                  <div className="absolute inset-0 bg-gradient-ethereal opacity-0 hover:opacity-20 transition-opacity duration-700 rounded-[23px] -z-10"></div>
                   
                   <div
                     className={`
