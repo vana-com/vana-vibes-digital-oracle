@@ -208,17 +208,27 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 {/* Card Info */}
                 <div className="text-center space-y-3">
                   <div className="relative">
-                    <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-wider">
-                      {card.title}
-                    </h3>
-                    {/* Ornamental underline */}
-                    <div className="flex justify-center mt-1">
-                      <div className="flex items-center space-x-1">
-                        <div className="w-1 h-1 bg-mystic-gold rounded-full" />
-                        <div className="w-8 h-px bg-gradient-to-r from-transparent via-mystic-gold to-transparent" />
-                        <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                    {card.isRevealed ? (
+                      <>
+                        <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-wider">
+                          {card.title}
+                        </h3>
+                        {/* Ornamental underline */}
+                        <div className="flex justify-center mt-1">
+                          <div className="flex items-center space-x-1">
+                            <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                            <div className="w-8 h-px bg-gradient-to-r from-transparent via-mystic-gold to-transparent" />
+                            <div className="w-1 h-1 bg-mystic-gold rounded-full" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-12 flex items-center justify-center">
+                        <div className="font-amatic text-2xl text-mystic-gold/60 tracking-widest">
+                          ✧ HIDDEN MYSTERY ✧
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                   <p className="text-accent font-alegreya text-xl">
                     {card.subtitle}
