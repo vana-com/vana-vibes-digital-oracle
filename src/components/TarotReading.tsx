@@ -229,7 +229,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 </div>
 
                 {/* Reading Text */}
-                {card.isRevealed && (
+                {card.isRevealed && card.reading && (
                   <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-mystic-gold/30 max-w-sm relative">
                     {/* Ancient scroll styling */}
                     <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-background px-3">
