@@ -99,14 +99,14 @@ const analyzeConversationThemes = (data: any) => {
 // Map selected tarot cards to the component's expected format
 export const mapCardsToComponent = (selectedCards: TarotCard[]): SelectedCard[] => {
   const positions = [
-    { title: 'The Seeker', subtitle: 'Digital Foundation' },
-    { title: 'The Threshold', subtitle: 'Present Crossroads' },
-    { title: 'The Becoming', subtitle: 'Emerging Potential' }
+    { subtitle: 'Digital Foundation' },
+    { subtitle: 'Present Crossroads' },
+    { subtitle: 'Emerging Potential' }
   ];
   
   return selectedCards.map((card, index) => ({
     id: card.id,
-    title: positions[index].title,
+    title: card.name, // Use the actual card name instead of mystical titles
     subtitle: positions[index].subtitle,
     image: getCardImage(card),
     reading: '',
