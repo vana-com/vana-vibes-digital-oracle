@@ -17,16 +17,16 @@ export const selectCardsBasedOnData = (chatData: any): TarotCard[] => {
   // Select cards based on themes with weighted probability
   const selectedCards: TarotCard[] = [];
   
-  // Past/Foundation card - prefer Major Arcana for foundational insights
+  // Past/Foundation card - from Major Arcana
   const pastCard = selectCardByTheme(themes.past_themes, majorArcana, 0.7);
   selectedCards.push(pastCard);
   
-  // Present/Challenge card - mix of Major and Minor based on complexity
-  const presentCard = selectCardByTheme(themes.present_themes, allTarotCards, 0.5);
+  // Present/Challenge card - from Major Arcana
+  const presentCard = selectCardByTheme(themes.present_themes, majorArcana, 0.5);
   selectedCards.push(presentCard);
   
-  // Future/Potential card - prefer cards with positive transformation themes
-  const futureCard = selectCardByTheme(themes.future_themes, allTarotCards, 0.6);
+  // Future/Potential card - from Major Arcana
+  const futureCard = selectCardByTheme(themes.future_themes, majorArcana, 0.6);
   selectedCards.push(futureCard);
   
   return selectedCards;
@@ -115,32 +115,32 @@ export const mapCardsToComponent = (selectedCards: TarotCard[]): SelectedCard[] 
   }));
 };
 
-// Map card names to their uploaded images
+// Map card names to their correct webp artwork
 const getCardImage = (card: TarotCard): string => {
   const imageMap: Record<string, string> = {
-    'fool': '/lovable-uploads/a1d7902c-0234-434d-b553-8f8811fe6c2d.png',
-    'magician': '/lovable-uploads/cfd9fd7c-db49-49c6-88aa-1a87e1bc07ef.png',
-    'high-priestess': '/lovable-uploads/c9f510f2-3511-45ef-94fd-4225a8ab1b2f.png',
-    'empress': '/lovable-uploads/9d593bf0-ed48-444c-b258-ad1725f839c3.png',
-    'emperor': '/lovable-uploads/711f1182-139b-4d8e-9b34-c613b583795d.png',
-    'hierophant': '/lovable-uploads/a81850ee-d2ec-483a-970a-b01f4fbc0d66.png',
-    'lovers': '/lovable-uploads/ad20572a-dd87-4480-84b8-c6961887ddd2.png',
-    'chariot': '/lovable-uploads/608fb09f-a2f1-4a90-b1d1-dacf6aeb8c01.png',
-    'strength': '/lovable-uploads/138d70ba-e8b1-48d1-abbb-23afd99b6233.png',
-    'hermit': '/lovable-uploads/ded73efa-6c8b-4f3d-b5c4-9067efb9f23e.png',
-    'wheel-of-fortune': '/lovable-uploads/4affbc8b-6b19-4342-adf0-2793f5382c7b.png',
-    'justice': '/lovable-uploads/00cbef68-6257-457d-85cd-a60de156d72f.png',
-    'hanged-man': '/lovable-uploads/aaa1cb07-332b-4865-8457-4905424c5284.png',
-    'death': '/lovable-uploads/e15531d5-18a4-45cc-a2ed-884a6d0280f6.png',
-    'temperance': '/lovable-uploads/d0cb33d7-d2ef-4f3e-bfa2-08d5cbc7378e.png',
-    'devil': '/lovable-uploads/71fbc844-178f-4342-9418-e34556e830ef.png',
-    'tower': '/lovable-uploads/e462e07c-469e-4e28-b33f-34cd118856f7.png',
-    'star': '/lovable-uploads/79f70ff7-ac20-49f0-b6d9-fceb783ab17c.png',
-    'moon': '/lovable-uploads/7f6abb79-06b0-4830-92d9-b52e38b9c82d.png',
-    'sun': '/lovable-uploads/5c10d349-f981-4b39-b307-a3e9f9b589b1.png',
-    'judgement': '/lovable-uploads/a19db11e-f873-402b-ac9d-6d01a9e8d4f4.png',
-    'world': '/lovable-uploads/d9fdc57b-75f8-4d9b-ad28-755a7a774c83.png'
+    'fool': 'The Fool.webp',
+    'magician': 'The Magician.webp',
+    'high-priestess': 'The High Priestess.webp',
+    'empress': 'The Empress.webp',
+    'emperor': 'The Emperor.webp',
+    'hierophant': 'The Hierophant.webp',
+    'lovers': 'The Lovers.webp',
+    'chariot': 'The Chariot.webp',
+    'strength': 'Strength.webp',
+    'hermit': 'The Hermit.webp',
+    'wheel-of-fortune': 'Wheel of Fortune.webp',
+    'justice': 'Justice.webp',
+    'hanged-man': 'The Hanged Man.webp',
+    'death': 'Death.webp',
+    'temperance': 'Temperance.webp',
+    'devil': 'The Devil.webp',
+    'tower': 'The Tower.webp',
+    'star': 'The Star.webp',
+    'moon': 'The Moon.webp',
+    'sun': 'The Sun.webp',
+    'judgement': 'Judgement.webp',
+    'world': 'The World.webp'
   };
   
-  return imageMap[card.id] || '/lovable-uploads/a1d7902c-0234-434d-b553-8f8811fe6c2d.png'; // fallback to The Fool
+  return imageMap[card.id] || 'The Fool.webp'; // fallback to The Fool
 };
