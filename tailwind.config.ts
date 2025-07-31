@@ -68,8 +68,8 @@ export default {
 				'gradient-midnight': 'var(--gradient-midnight)'
 			},
 			boxShadow: {
-				'glow-cyan': 'var(--glow-cyan)',
-				'glow-pink': 'var(--glow-pink)',
+				'glow-gold': 'var(--glow-gold)',
+				'glow-purple': 'var(--glow-purple)',
 				'mystical': 'var(--shadow-mystical)'
 			},
 			borderRadius: {
@@ -105,6 +105,20 @@ export default {
 				'card-flip': {
 					'0%': { transform: 'rotateY(0deg)' },
 					'100%': { transform: 'rotateY(180deg)' }
+				},
+				'sparkle': {
+					'0%': { 
+						transform: 'scale(0) rotate(0deg)',
+						opacity: '0'
+					},
+					'50%': { 
+						transform: 'scale(1) rotate(180deg)',
+						opacity: '1'
+					},
+					'100%': { 
+						transform: 'scale(0) rotate(360deg)',
+						opacity: '0'
+					}
 				}
 			},
 			animation: {
@@ -112,7 +126,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'float': 'float 3s ease-in-out infinite',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'card-flip': 'card-flip 0.6s ease-in-out'
+				'card-flip': 'card-flip 0.6s ease-in-out',
+				'sparkle': 'sparkle 1s ease-out'
 			}
 		}
 	},

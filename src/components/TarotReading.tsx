@@ -40,6 +40,39 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
         card.id === cardId ? { ...card, isRevealed: true } : card
       )
     );
+    
+    // Trigger sparkle effect
+    const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+    if (cardElement) {
+      createSparkleEffect(cardElement);
+    }
+  };
+
+  const createSparkleEffect = (element: Element) => {
+    const rect = element.getBoundingClientRect();
+    const sparkleContainer = document.createElement('div');
+    sparkleContainer.className = 'fixed pointer-events-none z-50';
+    sparkleContainer.style.left = `${rect.left}px`;
+    sparkleContainer.style.top = `${rect.top}px`;
+    sparkleContainer.style.width = `${rect.width}px`;
+    sparkleContainer.style.height = `${rect.height}px`;
+    
+    // Create multiple sparkles
+    for (let i = 0; i < 12; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'absolute w-1 h-1 bg-mystic-gold rounded-full animate-sparkle';
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.top = `${Math.random() * 100}%`;
+      sparkle.style.animationDelay = `${Math.random() * 0.5}s`;
+      sparkleContainer.appendChild(sparkle);
+    }
+    
+    document.body.appendChild(sparkleContainer);
+    
+    // Remove sparkles after animation
+    setTimeout(() => {
+      document.body.removeChild(sparkleContainer);
+    }, 1500);
   };
 
   if (!chatData) {
@@ -100,10 +133,11 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 <div 
                   className={`
                     relative cursor-pointer transform transition-all duration-700 hover:scale-105
-                    ${card.isRevealed ? 'hover:shadow-glow-cyan' : 'hover:shadow-glow-pink'}
+                    ${card.isRevealed ? 'hover:shadow-glow-gold' : 'hover:shadow-glow-purple'}
                   `}
                   onClick={() => !card.isRevealed && revealCard(card.id)}
                   style={{ perspective: '1000px' }}
+                  data-card-id={card.id}
                 >
                   <div
                     className={`
