@@ -141,7 +141,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 >
                   <div
                     className={`
-                      relative w-64 h-96 transition-transform duration-700 transform-style-preserve-3d
+                      relative w-64 h-[424px] transition-transform duration-700 transform-style-preserve-3d
                       ${card.isRevealed ? 'rotate-y-180' : ''}
                     `}
                   >
