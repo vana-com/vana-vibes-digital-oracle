@@ -13,24 +13,42 @@ interface TarotReadingProps {
 const TarotReading = ({ chatData }: TarotReadingProps) => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<SelectedCard[]>([]);
+  const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
 
   // Initialize cards based on chat data analysis
   useEffect(() => {
     if (chatData) {
-      // Select 3 cards from the full 78-card deck based on conversation themes
-      const selectedTarotCards = selectCardsBasedOnData(chatData);
-      const mappedCards = mapCardsToComponent(selectedTarotCards);
-      
-      // Generate mystical readings for each selected card
-      const readings = generateAllReadings(mappedCards, chatData);
-      
-      // Update cards with generated readings
-      const cardsWithReadings = mappedCards.map((card, index) => ({
-        ...card,
-        reading: readings[index]
-      }));
-      
-      setCards(cardsWithReadings);
+      const initializeReading = async () => {
+        console.log('Initializing tarot reading with chat data:', chatData);
+        
+        // Select 3 cards from the full 78-card deck based on conversation themes
+        const selectedTarotCards = selectCardsBasedOnData(chatData);
+        const mappedCards = mapCardsToComponent(selectedTarotCards);
+        
+        // Set cards initially without readings
+        setCards(mappedCards);
+        setIsGeneratingReadings(true);
+        
+        try {
+          // Generate AI-powered mystical readings for each selected card
+          const readings = await generateAllReadings(mappedCards, chatData);
+          
+          // Update cards with generated readings
+          const cardsWithReadings = mappedCards.map((card, index) => ({
+            ...card,
+            reading: readings[index]
+          }));
+          
+          setCards(cardsWithReadings);
+        } catch (error) {
+          console.error('Error generating readings:', error);
+          // Keep cards without readings if generation fails
+        } finally {
+          setIsGeneratingReadings(false);
+        }
+      };
+
+      initializeReading();
     }
   }, [chatData]);
 

@@ -1,1 +1,4 @@
 project_id = "uhpfvjgkfffkpisvotpr"
+
+[functions.generate-tarot-reading]
+verify_jwt = false
