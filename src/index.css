@@ -6,59 +6,60 @@
 
 @layer base {
   :root {
-    /* Deep mystical navy backgrounds */
-    --background: 225 35% 8%;
-    --foreground: 45 100% 95%;
+    /* Deep mystical backgrounds - #1C1D4C */
+    --background: 238 42% 21%;
+    --foreground: 50 60% 95%;
 
-    /* Card surfaces with subtle cosmic glow */
-    --card: 225 25% 12%;
-    --card-foreground: 45 90% 92%;
+    /* Card surfaces with subtle glow */
+    --card: 238 35% 25%;
+    --card-foreground: 50 55% 92%;
 
-    --popover: 225 25% 12%;
-    --popover-foreground: 45 90% 92%;
+    --popover: 238 35% 25%;
+    --popover-foreground: 50 55% 92%;
 
-    /* Bright cyan primary for mystical elements */
-    --primary: 185 95% 65%;
-    --primary-foreground: 225 35% 8%;
+    /* Mystical gold primary - #CFBC50 */
+    --primary: 50 60% 56%;
+    --primary-foreground: 238 42% 21%;
 
-    /* Soft lavender secondary */
-    --secondary: 280 45% 75%;
-    --secondary-foreground: 225 35% 8%;
+    /* Light mystical purple secondary - #8B8BFE */
+    --secondary: 240 98% 76%;
+    --secondary-foreground: 238 42% 21%;
 
     /* Muted cosmic elements */
-    --muted: 225 15% 20%;
-    --muted-foreground: 220 15% 65%;
+    --muted: 238 25% 30%;
+    --muted-foreground: 240 15% 65%;
 
-    /* Pink accent for magical touches */
-    --accent: 315 75% 75%;
-    --accent-foreground: 225 35% 8%;
+    /* Light purple accent */
+    --accent: 240 98% 76%;
+    --accent-foreground: 238 42% 21%;
 
     /* Mystical gold for special elements */
-    --mystic-gold: 45 85% 78%;
-    --mystic-gold-foreground: 225 35% 8%;
+    --mystic-gold: 50 60% 56%;
+    --mystic-gold-foreground: 238 42% 21%;
 
     /* Cosmic energy glow */
-    --cosmic-glow: 185 95% 65%;
-    --ethereal-pink: 315 75% 75%;
+    --cosmic-glow: 50 60% 56%;
+    --ethereal-purple: 240 98% 76%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 45 100% 95%;
+    --destructive-foreground: 50 60% 95%;
 
-    --border: 225 15% 25%;
-    --input: 225 15% 18%;
-    --ring: 185 95% 65%;
+    --border: 238 20% 35%;
+    --input: 238 25% 18%;
+    --ring: 50 60% 56%;
 
     --radius: 0.75rem;
 
     /* Gradients for mystical effects */
-    --gradient-cosmic: linear-gradient(135deg, hsl(185 95% 65%), hsl(280 45% 75%));
-    --gradient-ethereal: linear-gradient(45deg, hsl(315 75% 75%), hsl(280 45% 75%));
-    --gradient-midnight: linear-gradient(180deg, hsl(225 35% 8%), hsl(225 25% 12%));
+    --gradient-cosmic: linear-gradient(135deg, hsl(50 60% 56%), hsl(240 98% 76%));
+    --gradient-ethereal: linear-gradient(45deg, hsl(240 98% 76%), hsl(50 60% 56%));
+    --gradient-midnight: linear-gradient(180deg, hsl(238 42% 21%), hsl(238 35% 25%));
+    --gradient-gold-sparkle: linear-gradient(135deg, hsl(50 60% 56%) 0%, hsl(50 80% 65%) 25%, hsl(50 60% 56%) 50%, hsl(50 90% 75%) 75%, hsl(50 60% 56%) 100%);
     
     /* Glows and shadows */
-    --glow-cyan: 0 0 30px hsl(185 95% 65% / 0.5);
-    --glow-pink: 0 0 25px hsl(315 75% 75% / 0.4);
-    --shadow-mystical: 0 10px 40px hsl(225 35% 8% / 0.6);
+    --glow-gold: 0 0 30px hsl(50 60% 56% / 0.6);
+    --glow-purple: 0 0 25px hsl(240 98% 76% / 0.4);
+    --shadow-mystical: 0 10px 40px hsl(238 42% 21% / 0.8);
 
     --sidebar-background: 0 0% 98%;
 
