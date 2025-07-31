@@ -150,10 +150,10 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                       <img
                         src={cardBack}
                         alt="Tarot card back"
-                        className="w-full h-full object-cover rounded-xl border-2 border-border shadow-mystical"
+                        className="w-full h-full object-cover rounded-[23px] border-2 border-border shadow-mystical"
                       />
                       {!card.isRevealed && (
-                        <div className="absolute inset-0 bg-gradient-cosmic opacity-20 rounded-xl animate-glow-pulse"></div>
+                        <div className="absolute inset-0 bg-gradient-cosmic opacity-20 rounded-[23px] animate-glow-pulse"></div>
                       )}
                     </div>
 
@@ -162,7 +162,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                       <img
                         src={card.image}
                         alt={card.title}
-                        className="w-full h-full object-cover rounded-xl border-2 border-primary shadow-glow-cyan"
+                        className="w-full h-full object-cover rounded-[23px] border-2 border-primary shadow-glow-cyan"
                       />
                     </div>
                   </div>
