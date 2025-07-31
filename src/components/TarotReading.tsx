@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
 import { generateAllReadings } from '@/utils/readingGenerator';
-import cardBack from '@/assets/tarot-card-back.jpg';
+const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
 
 interface TarotReadingProps {
   chatData: any;
