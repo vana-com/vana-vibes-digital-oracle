@@ -21,6 +21,7 @@ export default {
 			fontFamily: {
 				'amatic': ['Amatic SC', 'cursive'],
 				'cormorant': ['Cormorant', 'serif'],
+				'alegreya': ['Alegreya', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
