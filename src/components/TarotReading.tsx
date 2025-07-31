@@ -151,6 +151,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                 <div 
                   className={`
                     relative cursor-pointer transform transition-all duration-700 hover:scale-105
+                    w-64 h-[424px] rounded-[23px]
                     ${card.isRevealed ? 'hover:shadow-glow-gold' : 'hover:shadow-glow-purple'}
                   `}
                   onClick={() => !card.isRevealed && revealCard(card.id)}
