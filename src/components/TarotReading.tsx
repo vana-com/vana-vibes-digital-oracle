@@ -149,7 +149,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                       </div>
                     </div>
                   </div>
-                  <p className="text-accent font-alegreya italic text-xl">
+                  <p className="text-accent font-alegreya text-xl">
                     {card.subtitle}
                   </p>
                   {!card.isRevealed && (
@@ -167,7 +167,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                     <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-background px-3">
                       <div className="font-cormorant text-mystic-gold text-sm">✧ PROPHECY ✧</div>
                     </div>
-                    <p className="text-foreground/90 leading-relaxed font-alegreya text-lg italic pt-2">
+                    <p className="text-foreground/90 leading-relaxed font-alegreya text-lg pt-2">
                       {card.reading}
                     </p>
                     {/* Mystical signature */}
@@ -198,7 +198,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
               <div className="font-cormorant text-mystic-gold/60 text-lg tracking-[0.2em] mb-4">
                 ᛏᚺᛖ • ᚱᛁᛏᚢᚨᛚ • ᛁᛋ • ᚲᛟᛗᛈᛚᛖᛏᛖ
               </div>
-              <p className="text-foreground/80 font-alegreya italic text-xl leading-relaxed">
+              <p className="text-foreground/80 font-alegreya text-xl leading-relaxed">
                 Your digital essence has been revealed through the mystical convergence of ancient wisdom and modern consciousness. 
                 Carry these sacred insights as you traverse the liminal spaces between digital and spiritual realms.
               </p>
