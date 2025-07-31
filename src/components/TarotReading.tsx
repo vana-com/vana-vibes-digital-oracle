@@ -158,6 +158,9 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
                   style={{ perspective: '1000px' }}
                   data-card-id={card.id}
                 >
+                  {/* Hover Background Gradient */}
+                  <div className="absolute inset-0 bg-gradient-cosmic opacity-0 hover:opacity-30 transition-opacity duration-700 rounded-[23px] -z-10"></div>
+                  
                   <div
                     className={`
                       relative w-64 h-[424px] transition-transform duration-700 transform-style-preserve-3d
