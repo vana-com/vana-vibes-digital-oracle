@@ -12,12 +12,23 @@ const Landing = ({ onFileUpload }: LandingProps) => {
   const navigate = useNavigate();
 
   const handleFileUpload = (file: File) => {
+    // Check file size (limit to 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      alert('File too large. Please use a smaller conversations.json file (max 50MB).');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const result = e.target?.result as string;
         const data = JSON.parse(result);
-        onFileUpload(data);
+        
+        // Process and sample the data to keep it manageable
+        const processedData = processChatData(data);
+        
+        onFileUpload(processedData);
         navigate('/reading');
       } catch (error) {
         console.error('Error parsing file:', error);
@@ -25,6 +36,32 @@ const Landing = ({ onFileUpload }: LandingProps) => {
       }
     };
     reader.readAsText(file);
+  };
+
+  const processChatData = (data: any): any => {
+    if (!Array.isArray(data)) return data;
+    
+    // Sample conversations to keep data manageable
+    const maxConversations = 20; // Limit to most recent 20 conversations
+    const maxMessagesPerConv = 50; // Limit messages per conversation
+    
+    const sampledData = data
+      .slice(0, maxConversations) // Take first 20 conversations
+      .map(conversation => {
+        if (!conversation.mapping) return conversation;
+        
+        // Sample messages from each conversation
+        const messageEntries = Object.entries(conversation.mapping);
+        const sampledMessages = messageEntries.slice(0, maxMessagesPerConv);
+        
+        return {
+          ...conversation,
+          mapping: Object.fromEntries(sampledMessages)
+        };
+      });
+    
+    console.log(`Processed ${data.length} conversations down to ${sampledData.length} for better performance`);
+    return sampledData;
   };
 
   const handleDrop = (e: React.DragEvent) => {
