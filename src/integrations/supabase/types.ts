@@ -10,11 +10,52 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      [_ in never]: never
+      reclaim_linkedin_claims: {
+        Row: {
+          created_at: string
+          current_company: string | null
+          current_title: string | null
+          data: Json | null
+          experience: Json | null
+          headline: string | null
+          id: string
+          session_id: string
+          skills: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_company?: string | null
+          current_title?: string | null
+          data?: Json | null
+          experience?: Json | null
+          headline?: string | null
+          id?: string
+          session_id: string
+          skills?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_company?: string | null
+          current_title?: string | null
+          data?: Json | null
+          experience?: Json | null
+          headline?: string | null
+          id?: string
+          session_id?: string
+          skills?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
