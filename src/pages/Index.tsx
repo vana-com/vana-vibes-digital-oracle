@@ -1,12 +1,12 @@
 import Landing from '@/components/Landing';
 
 const Index = () => {
-  const handleFileUpload = (data: any) => {
+  const handleDataConnect = (data: any) => {
     // Store in sessionStorage for navigation to reading page
-    sessionStorage.setItem('tarot-chat-data', JSON.stringify(data));
+    sessionStorage.setItem('tarot-linkedin-data', JSON.stringify(data));
   };
 
-  return <Landing onFileUpload={handleFileUpload} />;
+  return <Landing onDataConnect={handleDataConnect} />;
 };
 
 export default Index;

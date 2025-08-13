@@ -7,22 +7,22 @@ import { generateAllReadings } from '@/utils/readingGenerator';
 const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
 
 interface TarotReadingProps {
-  chatData: any;
+  linkedinData: any;
 }
 
-const TarotReading = ({ chatData }: TarotReadingProps) => {
+const TarotReading = ({ linkedinData }: TarotReadingProps) => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<SelectedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
 
-  // Initialize cards based on chat data analysis
+  // Initialize cards based on LinkedIn data analysis
   useEffect(() => {
-    if (chatData) {
+    if (linkedinData) {
       const initializeReading = async () => {
-        console.log('Initializing tarot reading with chat data:', chatData);
+        console.log('Initializing tarot reading with LinkedIn data:', linkedinData);
         
-        // Select 3 cards from the full 78-card deck based on conversation themes
-        const selectedTarotCards = selectCardsBasedOnData(chatData);
+        // Select 3 cards from the full 78-card deck based on professional themes
+        const selectedTarotCards = selectCardsBasedOnData(linkedinData);
         const mappedCards = mapCardsToComponent(selectedTarotCards);
         
         // Set cards initially without readings
@@ -31,7 +31,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
         
         try {
           // Generate AI-powered mystical readings for each selected card
-          const readings = await generateAllReadings(mappedCards, chatData);
+          const readings = await generateAllReadings(mappedCards, linkedinData);
           
           // Update cards with generated readings
           const cardsWithReadings = mappedCards.map((card, index) => ({
@@ -50,7 +50,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
 
       initializeReading();
     }
-  }, [chatData]);
+  }, [linkedinData]);
 
   const revealCard = (cardId: string) => {
     setCards(prevCards =>
@@ -108,7 +108,7 @@ const TarotReading = ({ chatData }: TarotReadingProps) => {
     }, 2000);
   };
 
-  if (!chatData) {
+  if (!linkedinData) {
     navigate('/');
     return null;
   }

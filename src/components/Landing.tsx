@@ -1,82 +1,50 @@
 import { useState } from 'react';
-import { Upload, Eye, Stars, Sparkles } from 'lucide-react';
+import { LinkedinIcon, Eye, Stars, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface LandingProps {
-  onFileUpload: (data: any) => void;
+  onDataConnect: (data: any) => void;
 }
 
-const Landing = ({ onFileUpload }: LandingProps) => {
-  const [isDragging, setIsDragging] = useState(false);
+const Landing = ({ onDataConnect }: LandingProps) => {
+  const [isConnecting, setIsConnecting] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleFileUpload = (file: File) => {
-    // Check file size (limit to 50MB)
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) {
-      alert('File too large. Please use a smaller conversations.json file (max 50MB).');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const result = e.target?.result as string;
-        const data = JSON.parse(result);
-        
-        // Process and sample the data to keep it manageable
-        const processedData = processChatData(data);
-        
-        onFileUpload(processedData);
-        navigate('/reading');
-      } catch (error) {
-        console.error('Error parsing file:', error);
-        alert('Invalid file format. Please upload a valid conversations.json file.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const processChatData = (data: any): any => {
-    if (!Array.isArray(data)) return data;
-    
-    // Sample conversations to keep data manageable
-    const maxConversations = 20; // Limit to most recent 20 conversations
-    const maxMessagesPerConv = 50; // Limit messages per conversation
-    
-    const sampledData = data
-      .slice(0, maxConversations) // Take first 20 conversations
-      .map(conversation => {
-        if (!conversation.mapping) return conversation;
-        
-        // Sample messages from each conversation
-        const messageEntries = Object.entries(conversation.mapping);
-        const sampledMessages = messageEntries.slice(0, maxMessagesPerConv);
-        
-        return {
-          ...conversation,
-          mapping: Object.fromEntries(sampledMessages)
-        };
+  const handleLinkedInConnect = async () => {
+    setIsConnecting(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: `${window.location.origin}/reading`,
+          scopes: 'profile openid email'
+        }
       });
-    
-    console.log(`Processed ${data.length} conversations down to ${sampledData.length} for better performance`);
-    return sampledData;
-  };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/json') {
-      handleFileUpload(file);
-    }
-  };
+      if (error) {
+        console.error('LinkedIn OAuth error:', error);
+        toast({
+          title: "Connection Failed",
+          description: "Unable to connect to LinkedIn. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
+      // OAuth redirect will handle the rest
+    } catch (error) {
+      console.error('Error connecting to LinkedIn:', error);
+      toast({
+        title: "Connection Error", 
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -158,56 +126,46 @@ const Landing = ({ onFileUpload }: LandingProps) => {
             </p>
           </div>
 
-          {/* Upload Section */}
+          {/* Connection Section */}
           <div className="space-y-8">
-            <div
-              className={`
-                relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300
-                ${isDragging 
-                  ? 'border-primary bg-primary/10 shadow-glow-cyan scale-105' 
-                  : 'border-border hover:border-primary/50 hover:bg-card/50'
-                }
-              `}
-              onDragOver={(e) => e.preventDefault()}
-              onDragEnter={() => setIsDragging(true)}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-            >
+            <div className="relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 border-border hover:border-primary/50 hover:bg-card/50">
               <div className="text-center space-y-6">
                 <div className="relative mx-auto w-20 h-20 mb-6">
                   <div className="absolute inset-0 bg-gradient-cosmic rounded-full opacity-20 animate-glow-pulse"></div>
                   <div className="relative z-10 w-full h-full bg-card rounded-full flex items-center justify-center">
-                    <Upload className="w-10 h-10 text-primary" />
+                    <LinkedinIcon className="w-10 h-10 text-primary" />
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <h3 className="font-amatic text-3xl font-bold text-foreground tracking-wide">
-                    UPLOAD YOUR DIGITAL GRIMOIRE
+                    CONNECT YOUR PROFESSIONAL ESSENCE
                   </h3>
                   <p className="font-cormorant text-muted-foreground max-w-md mx-auto italic text-lg">
-                    Let the ancient arts decipher the mystical threads woven through your digital conversations
+                    Channel the mystical energy of your LinkedIn profile to reveal hidden career insights
                   </p>
                 </div>
 
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileInput}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload">
-                  <Button 
-                    className="bg-gradient-cosmic hover:shadow-glow-cyan transition-all duration-300 text-primary-foreground font-amatic font-bold px-8 py-4 text-2xl tracking-widest border border-mystic-gold/30 relative overflow-hidden group"
-                    asChild
-                  >
-                    <span className="cursor-pointer relative z-10">
-                      ⚡ CHANNEL THE DATA ⚡
-                      <div className="absolute inset-0 bg-gradient-ethereal opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                    </span>
-                  </Button>
-                </label>
+                <Button 
+                  onClick={handleLinkedInConnect}
+                  disabled={isConnecting}
+                  className="bg-gradient-cosmic hover:shadow-glow-cyan transition-all duration-300 text-primary-foreground font-amatic font-bold px-8 py-4 text-2xl tracking-widest border border-mystic-gold/30 relative overflow-hidden group disabled:opacity-50"
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    {isConnecting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-foreground"></div>
+                        CHANNELING...
+                      </>
+                    ) : (
+                      <>
+                        <LinkedinIcon className="w-6 h-6" />
+                        ⚡ CONNECT TO LINKEDIN ⚡
+                      </>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-ethereal opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                  </span>
+                </Button>
               </div>
             </div>
 
@@ -231,21 +189,21 @@ const Landing = ({ onFileUpload }: LandingProps) => {
               
               <h4 className="font-amatic text-2xl font-bold text-mystic-gold mb-4 flex items-center justify-center gap-2 tracking-wide">
                 <Eye className="w-6 h-6" />
-                RITUAL OF DIGITAL DIVINATION
+                RITUAL OF PROFESSIONAL DIVINATION
                 <Eye className="w-6 h-6" />
               </h4>
               <ol className="text-left space-y-4 text-foreground/80 font-cormorant text-lg">
                 <li className="flex items-start gap-4">
                   <span className="text-primary font-bold text-2xl font-amatic">I.</span>
-                  <span className="italic">Journey to ChatGPT → Settings → Data Controls</span>
+                  <span className="italic">Grant access to your LinkedIn professional aura</span>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-accent font-bold text-2xl font-amatic">II.</span>
-                  <span className="italic">Invoke the export spell and summon conversations.json</span>
+                  <span className="italic">Allow the oracle to channel your career essence</span>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-secondary font-bold text-2xl font-amatic">III.</span>
-                  <span className="italic">Offer the sacred file to begin the mystical revelation</span>
+                  <span className="italic">Witness the mystical revelation of your professional destiny</span>
                 </li>
               </ol>
             </div>
