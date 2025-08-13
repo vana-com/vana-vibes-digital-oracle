@@ -11,74 +11,23 @@ const Reading = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleLinkedInAuth = async () => {
+    // Check for mock data in sessionStorage first
+    const mockData = sessionStorage.getItem('tarot-linkedin-data');
+    
+    if (mockData) {
       try {
-        // Check if user is authenticated (from LinkedIn OAuth callback)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          toast({
-            title: "Authentication Error",
-            description: "Failed to verify LinkedIn connection.",
-            variant: "destructive",
-          });
-          navigate('/');
-          return;
-        }
-
-        if (session?.user) {
-          console.log('User authenticated, fetching LinkedIn data...');
-          
-          // Call our edge function to fetch LinkedIn data
-          const { data, error } = await supabase.functions.invoke('fetch-linkedin-data', {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-
-          if (error) {
-            console.error('Error fetching LinkedIn data:', error);
-            toast({
-              title: "Data Fetch Error",
-              description: "Unable to retrieve your LinkedIn profile data.",
-              variant: "destructive",
-            });
-            navigate('/');
-            return;
-          }
-
-          console.log('LinkedIn data fetched successfully:', data);
-          setLinkedinData(data);
-          
-          // Store in sessionStorage for potential page refreshes
-          sessionStorage.setItem('tarot-linkedin-data', JSON.stringify(data));
-        } else {
-          // Check if data was previously stored in sessionStorage
-          const storedData = sessionStorage.getItem('tarot-linkedin-data');
-          if (storedData) {
-            setLinkedinData(JSON.parse(storedData));
-          } else {
-            console.log('No authenticated user, redirecting to home');
-            navigate('/');
-            return;
-          }
-        }
-      } catch (error) {
-        console.error('Error in LinkedIn auth flow:', error);
-        toast({
-          title: "Connection Error",
-          description: "An unexpected error occurred while connecting to LinkedIn.",
-          variant: "destructive",
-        });
-        navigate('/');
-      } finally {
+        const parsedData = JSON.parse(mockData);
+        setLinkedinData(parsedData);
         setIsLoading(false);
+        return;
+      } catch (error) {
+        console.error('Error parsing mock data:', error);
       }
-    };
+    }
 
-    handleLinkedInAuth();
-  }, [navigate, toast]);
+    // If no mock data, redirect back to home
+    navigate('/');
+  }, [navigate]);
 
   if (isLoading) {
     return (

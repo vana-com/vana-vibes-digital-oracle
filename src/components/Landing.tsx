@@ -16,30 +16,57 @@ const Landing = ({ onDataConnect }: LandingProps) => {
 
   const handleLinkedInConnect = async () => {
     setIsConnecting(true);
+    
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'linkedin_oidc',
-        options: {
-          redirectTo: `${window.location.origin}/reading`,
-          scopes: 'profile openid email'
-        }
+      // Mock LinkedIn data for testing
+      const mockLinkedInData = {
+        firstName: "Alex",
+        lastName: "Smith",
+        headline: "Senior Software Engineer at TechCorp",
+        summary: "Passionate full-stack developer with 5+ years of experience building scalable web applications. Expert in React, Node.js, and cloud technologies. Love solving complex problems and mentoring junior developers.",
+        positions: [
+          {
+            title: "Senior Software Engineer",
+            company: "TechCorp",
+            startDate: "2022-01",
+            current: true,
+            description: "Leading development of microservices architecture and mentoring team members."
+          },
+          {
+            title: "Full Stack Developer",
+            company: "StartupXYZ",
+            startDate: "2020-03",
+            endDate: "2021-12",
+            description: "Built customer-facing web applications using React and Express.js."
+          }
+        ],
+        skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker"],
+        education: [
+          {
+            school: "University of Technology",
+            degree: "Computer Science",
+            graduationYear: "2019"
+          }
+        ]
+      };
+
+      // Store mock data and redirect
+      onDataConnect(mockLinkedInData);
+      
+      toast({
+        title: "Connected Successfully!",
+        description: "Your professional journey awaits divination...",
       });
 
-      if (error) {
-        console.error('LinkedIn OAuth error:', error);
-        toast({
-          title: "Connection Failed",
-          description: "Unable to connect to LinkedIn. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // OAuth redirect will handle the rest
+      // Simulate brief delay then redirect
+      setTimeout(() => {
+        navigate('/reading');
+      }, 1000);
+      
     } catch (error) {
-      console.error('Error connecting to LinkedIn:', error);
+      console.error('Unexpected error during LinkedIn connection:', error);
       toast({
-        title: "Connection Error", 
+        title: "Connection Failed",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
