@@ -42,23 +42,21 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an ancient mystical oracle who speaks in brief ethereal whispers about professional destinies. Your readings are cryptic yet meaningful.
-
-MYSTICAL TRANSLATION RULES:
-- Speak of "cycles around the earthly sun" instead of years
-- Reference "realms of commerce" and "kingdoms of industry" 
-- Describe career movements as "spiritual migrations"
-- Turn skills into "mystical emanations"
+            content: `You are a mystical LinkedIn oracle who reads professional destinies through the sacred patterns of corporate profiles. Your readings are brief, witty, and play with LinkedIn clichés.
 
 YOUR STYLE:
-- ULTRA BRIEF: Maximum 1-2 short sentences
-- CRYPTIC: Speak in metaphors and cosmic imagery
-- MYSTICAL: Use fortune-teller language with veiled meanings
-- Use phrases like: "The universe whispers...", "Ancient energies suggest..."
+- BRIEF: Maximum 1-2 sentences
+- LINKEDIN-AWARE: Reference observable profile patterns and platform clichés
+- HUMOROUS: Gently roast LinkedIn culture while being respectful
+- FORTUNE-TELLING: Mix mysticism with corporate satire
 
-EXAMPLE FORMAT: "The universe whispers of powerful energies swirling around your professional aura. Trust the cosmic currents guiding you toward realms where your gifts shall flourish."
+EXAMPLES:
+- "The spirits detect 'passionate' in your headline - LinkedIn energy flows strong through you."
+- "Ah, the classic 2-year tenure pattern... you've mastered the sacred corporate rhythm."
+- "Your All-Star profile status suggests the algorithm gods smile upon your destiny."
+- "17 skill endorsements from strangers - the LinkedIn ritual is complete."
 
-Keep it mystical, abstract, and SHORT.`
+Keep it SHORT, FUNNY, and SHAREABLE.`
           },
           {
             role: 'user',
@@ -93,14 +91,15 @@ Keep it mystical, abstract, and SHORT.`
   }
 });
 
-// Analyze LinkedIn data for mystical career interpretation
+// Analyze LinkedIn data for LinkedIn-specific patterns and clichés
 function analyzeLinkedInData(linkedinData: any) {
   if (!linkedinData) {
     return {
-      careerType: 'mysterious_wanderer',
-      tenurePattern: 'unknown_paths',
-      currentVibes: 'enigmatic_presence',
-      networkPower: 'hidden_influence'
+      linkedinClicheLevel: 'mystery_profile',
+      tenurePattern: 'unknown_journey',
+      headlineBuzzwords: [],
+      profileCompleteness: 'ghost_mode',
+      careerTrajectory: 'enigmatic_path'
     };
   }
 
@@ -109,108 +108,200 @@ function analyzeLinkedInData(linkedinData: any) {
   const skills = linkedinData.skills || [];
   const headline = linkedinData.headline || '';
   const summary = linkedinData.summary || '';
-
-  // Career Journey Analysis (Past)
-  let careerType = 'mysterious_wanderer';
-  if (jobCount <= 2) {
-    careerType = 'loyal_sage';
-  } else if (jobCount <= 5) {
-    careerType = 'seeker_of_wisdom';
-  } else {
-    careerType = 'nomadic_spirit';
-  }
-
-  // Tenure Analysis
-  const avgTenure = calculateAverageTenure(positions);
-  let tenurePattern = 'unknown_paths';
-  if (avgTenure < 1) {
-    tenurePattern = 'restless_energy';
-  } else if (avgTenure <= 3) {
-    tenurePattern = 'balanced_explorer';
-  } else {
-    tenurePattern = 'deep_roots';
-  }
-
-  // Current State Analysis (Present)
-  let currentVibes = 'enigmatic_presence';
   const combinedText = (headline + ' ' + summary).toLowerCase();
-  
-  if (combinedText.includes('manager')) {
-    currentVibes = 'keeper_of_resources';
-  } else if (combinedText.includes('director')) {
-    currentVibes = 'oracle_of_visions';
-  } else if (combinedText.includes('analyst')) {
-    currentVibes = 'reader_of_runes';
+
+  // Detect LinkedIn Clichés
+  const cliches = [];
+  if (combinedText.includes('passionate')) cliches.push('passionate');
+  if (combinedText.includes('results-driven')) cliches.push('results-driven');
+  if (combinedText.includes('innovative')) cliches.push('innovative');
+  if (combinedText.includes('thought leader')) cliches.push('thought-leader');
+  if (combinedText.includes('strategic')) cliches.push('strategic');
+  if (combinedText.includes('synergy')) cliches.push('synergy');
+  if (combinedText.includes('dynamic')) cliches.push('dynamic');
+  if (combinedText.includes('disrupt')) cliches.push('disruptor');
+
+  // Tenure Pattern Analysis (PAST)
+  const avgTenure = calculateAverageTenure(positions);
+  let tenurePattern = 'mysterious_tenure';
+  if (avgTenure < 1.5) {
+    tenurePattern = 'job_hopper';
+  } else if (avgTenure >= 1.8 && avgTenure <= 2.5) {
+    tenurePattern = 'sacred_two_year_cycle';
+  } else if (avgTenure > 5) {
+    tenurePattern = 'company_lifer';
+  } else {
+    tenurePattern = 'balanced_mover';
   }
 
-  // Network Power Analysis (Future potential)
-  let networkPower = 'hidden_influence';
-  if (skills.length < 5) {
-    networkPower = 'intimate_circle';
-  } else if (skills.length <= 10) {
-    networkPower = 'growing_sphere';
-  } else {
-    networkPower = 'vast_constellation';
+  // Career Trajectory Analysis (PAST)
+  let careerTrajectory = 'steady_climber';
+  const companySizes = analyzeCompanySizes(positions);
+  if (companySizes.hasStartup && companySizes.hasBigCorp) {
+    careerTrajectory = 'startup_to_corporate';
+  } else if (companySizes.hasConsulting) {
+    careerTrajectory = 'consulting_survivor';
+  }
+
+  // Title Progression Analysis
+  const hasClassicProgression = detectClassicProgression(positions);
+
+  // Profile Completeness (FUTURE indicators)
+  let profileCompleteness = 'basic_profile';
+  const completenessScore = calculateProfileCompleteness(linkedinData);
+  if (completenessScore > 80) {
+    profileCompleteness = 'linkedin_all_star';
+  } else if (completenessScore > 60) {
+    profileCompleteness = 'profile_optimizer';
   }
 
   return {
-    careerType,
+    linkedinClicheLevel: cliches.length > 2 ? 'maximum_linkedin_energy' : 'moderate_corporate_speak',
     tenurePattern,
-    currentVibes,
-    networkPower,
+    headlineBuzzwords: cliches,
+    profileCompleteness,
+    careerTrajectory,
+    hasClassicProgression,
     jobCount,
     avgTenure,
     skillCount: skills.length,
-    hasPassion: combinedText.includes('passionate'),
-    isResultsDriven: combinedText.includes('results'),
-    isInnovative: combinedText.includes('innovative')
+    completenessScore,
+    companySizes
   };
+}
+
+// Analyze company sizes in career trajectory
+function analyzeCompanySizes(positions: any[]) {
+  const analysis = {
+    hasStartup: false,
+    hasBigCorp: false,
+    hasConsulting: false
+  };
+
+  positions.forEach(pos => {
+    const company = (pos.company || '').toLowerCase();
+    if (company.includes('consulting') || company.includes('accenture') || company.includes('deloitte')) {
+      analysis.hasConsulting = true;
+    }
+    // Simple heuristics - could be enhanced with actual company data
+    if (company.includes('google') || company.includes('microsoft') || company.includes('amazon')) {
+      analysis.hasBigCorp = true;
+    }
+  });
+
+  return analysis;
+}
+
+// Detect classic corporate title progression
+function detectClassicProgression(positions: any[]): boolean {
+  const titles = positions.map(p => (p.title || '').toLowerCase());
+  const hasAnalyst = titles.some(t => t.includes('analyst'));
+  const hasSenior = titles.some(t => t.includes('senior'));
+  const hasManager = titles.some(t => t.includes('manager') || t.includes('director') || t.includes('vp'));
+  
+  return hasAnalyst && (hasSenior || hasManager);
+}
+
+// Calculate profile completeness score
+function calculateProfileCompleteness(linkedinData: any): number {
+  let score = 0;
+  if (linkedinData.headline) score += 20;
+  if (linkedinData.summary) score += 20;
+  if (linkedinData.positions?.length > 0) score += 20;
+  if (linkedinData.education?.length > 0) score += 15;
+  if (linkedinData.skills?.length > 0) score += 15;
+  if (linkedinData.profilePicture) score += 10;
+  
+  return score;
 }
 
 // Create a LinkedIn-specialized prompt for generating career fortune readings
 function createLinkedInReadingPrompt(card: any, position: string, analysis: any, linkedinData: any) {
-  const name = linkedinData?.firstName || 'Seeker';
-  const currentRole = linkedinData?.headline || 'Professional Wanderer';
-  const company = linkedinData?.positions?.[0]?.company || 'Unknown Realm';
+  const name = linkedinData?.firstName || 'Professional';
+  const headline = linkedinData?.headline || '';
+  const clichesFound = analysis.headlineBuzzwords.join(', ') || 'none detected';
   
   let positionGuidance = '';
   
   if (position === 'past') {
-    positionGuidance = `This is the PAST CARD representing their career journey. 
-    Career Type: ${analysis.careerType} (${analysis.jobCount} positions)
-    Tenure Pattern: ${analysis.tenurePattern} (avg ${analysis.avgTenure.toFixed(1)} years)
-    Focus on their professional evolution, job changes, and foundational career experiences.`;
+    const tenureInsight = getTenureInsight(analysis.tenurePattern, analysis.avgTenure);
+    const careerInsight = getCareerTrajectoryInsight(analysis.careerTrajectory, analysis.hasClassicProgression);
+    
+    positionGuidance = `PAST CARD - Career History Patterns:
+    Tenure Pattern: ${tenureInsight}
+    Career Trajectory: ${careerInsight}
+    Job Count: ${analysis.jobCount} positions
+    Reference their career journey patterns and job-hopping/staying tendencies.`;
+    
   } else if (position === 'present') {
-    positionGuidance = `This is the PRESENT CARD representing their current professional state.
-    Current Vibes: ${analysis.currentVibes}
-    Role: ${currentRole} at ${company}
-    Skills: ${analysis.skillCount} mystical abilities
-    Energy: ${analysis.hasPassion ? 'Fire energy detected' : 'Calm presence'}, ${analysis.isResultsDriven ? 'Manifestation powers active' : 'Flowing with current'}, ${analysis.isInnovative ? 'Chaos magic practitioner' : 'Traditional wisdom keeper'}
-    Focus on their current professional identity and active energies.`;
+    const clicheInsight = getClicheInsight(analysis.linkedinClicheLevel, analysis.headlineBuzzwords);
+    const profileInsight = getProfileInsight(headline, analysis.skillCount);
+    
+    positionGuidance = `PRESENT CARD - Current LinkedIn Energy:
+    LinkedIn Cliché Level: ${clicheInsight}
+    Profile Vibe: ${profileInsight}
+    Buzzwords Detected: ${clichesFound}
+    Reference their current headline, profile energy, and LinkedIn presence.`;
+    
   } else {
-    positionGuidance = `This is the FUTURE CARD representing their network influence and trajectory.
-    Network Power: ${analysis.networkPower}
-    Professional Skills: ${analysis.skillCount} magical abilities
-    Focus on their potential growth, network expansion, and future professional destiny.`;
+    const futureInsight = getFutureInsight(analysis.profileCompleteness, analysis.skillCount, analysis.completenessScore);
+    
+    positionGuidance = `FUTURE CARD - LinkedIn Destiny Signals:
+    Profile Status: ${futureInsight}
+    Skills Listed: ${analysis.skillCount}
+    Profile Score: ${analysis.completenessScore}%
+    Reference their networking potential and LinkedIn optimization.`;
   }
 
-  return `Generate a mystical tarot reading for ${name} using the card "${card.name}".
+  return `Generate a LinkedIn fortune for ${name} using "${card.name}".
 
-CARD INFO:
-- Name: ${card.name}
-- Keywords: ${card.keywords?.join(', ')}
-- Upright Meaning: ${card.meaning?.upright}
+CARD: ${card.name} - ${card.keywords?.join(', ')}
 
-POSITION CONTEXT:
 ${positionGuidance}
 
-LINKEDIN PROFILE ESSENCE:
-- Current Title: ${currentRole}
-- Current Company: ${company}
-- Career Positions: ${analysis.jobCount}
-- Professional Skills: ${analysis.skillCount}
+Create a witty, brief LinkedIn-aware reading that references specific observable patterns. Make it shareable and funny while connecting to the card's meaning.`;
+}
 
-Create a mystical interpretation that weaves the card's meaning with their LinkedIn profile data. Use the mystical translation rules to transform their corporate journey into cosmic insights. Include a touch of humor while maintaining respect for their professional achievements.`;
+// Helper functions for generating insights
+function getTenureInsight(pattern: string, avgTenure: number): string {
+  switch (pattern) {
+    case 'sacred_two_year_cycle': return `The sacred 2-year cycle (avg ${avgTenure.toFixed(1)} years) - you've mastered the corporate rhythm`;
+    case 'job_hopper': return `Job hopping detected (${avgTenure.toFixed(1)} year avg) - the corporate wanderer path`;
+    case 'company_lifer': return `Long tenure pattern (${avgTenure.toFixed(1)} years avg) - the loyal corporate sage`;
+    case 'balanced_mover': return `Balanced tenure (${avgTenure.toFixed(1)} years avg) - the measured professional`;
+    default: return 'Mysterious career timeline';
+  }
+}
+
+function getCareerTrajectoryInsight(trajectory: string, hasClassicProgression: boolean): string {
+  const progression = hasClassicProgression ? 'Classic Analyst→Senior→Manager climb detected' : 'Non-traditional career path';
+  switch (trajectory) {
+    case 'startup_to_corporate': return `${progression}. Startup to big corp journey - collected all company size badges`;
+    case 'consulting_survivor': return `${progression}. Consulting background detected - PowerPoint trauma survivor`;
+    default: return progression;
+  }
+}
+
+function getClicheInsight(level: string, buzzwords: string[]): string {
+  if (level === 'maximum_linkedin_energy') {
+    return `Maximum LinkedIn energy detected! Buzzwords: ${buzzwords.slice(0, 3).join(', ')}`;
+  }
+  return buzzwords.length > 0 ? `Moderate corporate speak. Found: ${buzzwords[0]}` : 'Refreshingly buzzword-light profile';
+}
+
+function getProfileInsight(headline: string, skillCount: number): string {
+  if (headline.length > 100) return `Headline optimization level: Maximum (${headline.length} chars)`;
+  if (skillCount > 20) return `${skillCount} skills listed - the LinkedIn completionist`;
+  if (skillCount < 5) return `${skillCount} skills - minimalist approach detected`;
+  return `${skillCount} skills listed - balanced professional`;
+}
+
+function getFutureInsight(completeness: string, skillCount: number, score: number): string {
+  switch (completeness) {
+    case 'linkedin_all_star': return `All-Star profile status (${score}%) - algorithm gods smile upon you`;
+    case 'profile_optimizer': return `Profile optimization in progress (${score}%) - LinkedIn energy building`;
+    default: return `Basic profile energy (${score}%) - untapped LinkedIn potential`;
+  }
 }
 
 // Calculate average tenure for LinkedIn positions
