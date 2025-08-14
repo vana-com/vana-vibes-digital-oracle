@@ -1,0 +1,23 @@
+-- Update tarot card images to use correct files from storage bucket
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Fool.webp' WHERE id = 'fool';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Magician.webp' WHERE id = 'magician';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The High Priestess.webp' WHERE id = 'high-priestess';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Empress.webp' WHERE id = 'empress';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Emperor.webp' WHERE id = 'emperor';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Hierophant.webp' WHERE id = 'hierophant';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Lovers.webp' WHERE id = 'lovers';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Chariot.webp' WHERE id = 'chariot';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Strength.webp' WHERE id = 'strength';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Hermit.webp' WHERE id = 'hermit';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Wheel of Fortune.webp' WHERE id = 'wheel-of-fortune';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Justice.webp' WHERE id = 'justice';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Hanged Man.webp' WHERE id = 'hanged-man';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Death.webp' WHERE id = 'death';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Temperance.webp' WHERE id = 'temperance';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Devil.webp' WHERE id = 'devil';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Tower.webp' WHERE id = 'tower';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Star.webp' WHERE id = 'star';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Moon.webp' WHERE id = 'moon';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The Sun.webp' WHERE id = 'sun';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/Judgement.webp' WHERE id = 'judgement';
+UPDATE tarot_cards SET image_url = 'https://uhpfvjgkfffkpisvotpr.supabase.co/storage/v1/object/public/tarot-cards/The World.webp' WHERE id = 'world';
