@@ -56,6 +56,57 @@ export type Database = {
         }
         Relationships: []
       }
+      tarot_cards: {
+        Row: {
+          arcana: string
+          astrology: string | null
+          created_at: string
+          element: string | null
+          id: string
+          image_url: string
+          keywords: string[]
+          meaning_reversed: string
+          meaning_upright: string
+          name: string
+          number: number | null
+          suit: string | null
+          symbolism: string[]
+          updated_at: string
+        }
+        Insert: {
+          arcana: string
+          astrology?: string | null
+          created_at?: string
+          element?: string | null
+          id: string
+          image_url: string
+          keywords?: string[]
+          meaning_reversed: string
+          meaning_upright: string
+          name: string
+          number?: number | null
+          suit?: string | null
+          symbolism?: string[]
+          updated_at?: string
+        }
+        Update: {
+          arcana?: string
+          astrology?: string | null
+          created_at?: string
+          element?: string | null
+          id?: string
+          image_url?: string
+          keywords?: string[]
+          meaning_reversed?: string
+          meaning_upright?: string
+          name?: string
+          number?: number | null
+          suit?: string | null
+          symbolism?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -127,44 +127,7 @@ export const mapCardsToComponent = (selectedCards: TarotCard[]): SelectedCard[] 
   }));
 };
 
-// Map card names to appropriate fallback images from uploaded files
+// Get card image from database
 const getCardImage = (card: TarotCard): string => {
-  // Use the tarot card back image as fallback for now
-  // You can replace these with actual card images when available
-  const fallbackImages = [
-    '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png', // card back
-    '/lovable-uploads/a19db11e-f873-402b-ac9d-6d01a9e8d4f4.png',
-    '/lovable-uploads/138d70ba-e8b1-48d1-abbb-23afd99b6233.png',
-    '/lovable-uploads/4affbc8b-6b19-4342-adf0-2793f5382c7b.png',
-    '/lovable-uploads/5c10d349-f981-4b39-b307-a3e9f9b589b1.png',
-    '/lovable-uploads/608fb09f-a2f1-4a90-b1d1-dacf6aeb8c01.png'
-  ];
-
-  // Major Arcana specific mappings (when you have actual card images)
-  const imageMap: Record<string, string> = {
-    'fool': fallbackImages[1],
-    'magician': fallbackImages[2],
-    'high-priestess': fallbackImages[3],
-    'empress': fallbackImages[4],
-    'emperor': fallbackImages[5],
-    'hierophant': fallbackImages[1],
-    'lovers': fallbackImages[2],
-    'chariot': fallbackImages[3],
-    'strength': fallbackImages[4],
-    'hermit': fallbackImages[5],
-    'wheel-of-fortune': fallbackImages[1],
-    'justice': fallbackImages[2],
-    'hanged-man': fallbackImages[3],
-    'death': fallbackImages[4],
-    'temperance': fallbackImages[5],
-    'devil': fallbackImages[1],
-    'tower': fallbackImages[2],
-    'star': fallbackImages[3],
-    'moon': fallbackImages[4],
-    'sun': fallbackImages[5],
-    'judgement': fallbackImages[1],
-    'world': fallbackImages[2]
-  };
-  
-  return imageMap[card.id] || fallbackImages[0]; // fallback to card back
+  return card.image_url || '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png'; // fallback to card back
 };
