@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
 import { generateAllReadings } from '@/utils/readingGenerator';
 import { useTarotCards } from '@/hooks/useTarotCards';
+import CareerFortuneLoading from '@/components/CareerFortuneLoading';
 const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
 
 interface TarotReadingProps {
@@ -123,6 +124,11 @@ const TarotReading = ({ linkedinData }: TarotReadingProps) => {
   if (!linkedinData) {
     navigate('/');
     return null;
+  }
+
+  // Show career fortune loading screen while generating readings
+  if (isGeneratingReadings) {
+    return <CareerFortuneLoading linkedinData={linkedinData} />;
   }
 
   return (
