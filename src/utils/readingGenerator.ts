@@ -2,9 +2,9 @@ import { TarotCard } from '@/data/tarotCards';
 import { SelectedCard } from '@/utils/cardSelection';
 import { supabase } from '@/integrations/supabase/client';
 
-export const generateMysticalReading = async (card: TarotCard, position: 'past' | 'present' | 'future', chatData: any): Promise<string> => {
+export const generateMysticalReading = async (card: TarotCard, position: 'past' | 'present' | 'future', linkedinData: any): Promise<string> => {
   try {
-    console.log('Generating AI reading for card:', card.name, 'position:', position);
+    console.log('Generating LinkedIn-based reading for card:', card.name, 'position:', position);
     
     const { data, error } = await supabase.functions.invoke('generate-tarot-reading', {
       body: {
@@ -15,7 +15,7 @@ export const generateMysticalReading = async (card: TarotCard, position: 'past' 
           symbolism: card.symbolism
         },
         position,
-        chatData
+        linkedinData
       }
     });
 
@@ -58,17 +58,17 @@ const generateFallbackReading = (card: TarotCard, position: 'past' | 'present' |
   return `${randomPhrase} the power of ${card.name.toLowerCase()}. The mystical energies suggest that ${keywordString} weave through your digital essence, revealing how ${cardMeaning} manifests in your consciousness. Trust in the synchronicity that brought this sacred symbol to light.`;
 };
 
-export const generateAllReadings = async (selectedCards: SelectedCard[], chatData: any): Promise<string[]> => {
+export const generateAllReadings = async (selectedCards: SelectedCard[], linkedinData: any): Promise<string[]> => {
   const positions: ('past' | 'present' | 'future')[] = ['past', 'present', 'future'];
   
-  console.log('Generating all readings for', selectedCards.length, 'cards');
+  console.log('Generating all LinkedIn-based readings for', selectedCards.length, 'cards');
   
   const readings = await Promise.all(
     selectedCards.map((selectedCard, index) => 
-      generateMysticalReading(selectedCard.card, positions[index], chatData)
+      generateMysticalReading(selectedCard.card, positions[index], linkedinData)
     )
   );
   
-  console.log('Generated readings:', readings);
+  console.log('Generated LinkedIn readings:', readings);
   return readings;
 };
