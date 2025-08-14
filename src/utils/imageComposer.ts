@@ -33,21 +33,21 @@ export const createShareableImage = async (cards: CardImage[]): Promise<string> 
     // Title text styling using design system colors
     ctx.fillStyle = 'hsl(50, 60%, 56%)'; // --primary
     ctx.textAlign = 'center';
-    ctx.font = 'bold 42px serif';
-    ctx.fillText('THE DIGITAL ORACLE SPEAKS', canvas.width / 2, 70);
+    ctx.font = 'bold 44px serif';
+    ctx.fillText('THE DIGITAL ORACLE SPEAKS', canvas.width / 2, 55);
 
     // Subtitle using secondary color
-    ctx.font = '22px serif';
+    ctx.font = '20px serif';
     ctx.fillStyle = 'hsl(240, 98%, 76%)'; // --secondary
-    ctx.fillText('✧ YOUR CAREER FORTUNE REVEALED ✧', canvas.width / 2, 110);
+    ctx.fillText('✧ YOUR CAREER FORTUNE REVEALED ✧', canvas.width / 2, 85);
 
-    // Card dimensions and positioning - made bigger
-    const cardWidth = 200;
-    const cardHeight = 300;
-    const cardSpacing = 100;
+    // Card dimensions and positioning - optimized for better space usage
+    const cardWidth = 220;
+    const cardHeight = 330;
+    const cardSpacing = 90;
     const totalCardsWidth = (cardWidth * 3) + (cardSpacing * 2);
     const startX = (canvas.width - totalCardsWidth) / 2;
-    const cardY = 160;
+    const cardY = 130;
 
     // Position labels
     const positions = ['PAST', 'PRESENT', 'FUTURE'];
@@ -80,15 +80,15 @@ export const createShareableImage = async (cards: CardImage[]): Promise<string> 
         
         // Draw position label above card
         ctx.fillStyle = 'hsl(50, 60%, 56%)'; // --primary
-        ctx.font = 'bold 20px serif';
+        ctx.font = 'bold 18px serif';
         ctx.textAlign = 'center';
-        ctx.fillText(positions[index], x + cardWidth / 2, cardY - 20);
+        ctx.fillText(positions[index], x + cardWidth / 2, cardY - 15);
         
         // Draw card name below card
         ctx.fillStyle = 'hsl(240, 98%, 76%)'; // --secondary
-        ctx.font = '18px serif';
-        const cardName = card.name.length > 18 ? card.name.substring(0, 18) + '...' : card.name;
-        ctx.fillText(cardName, x + cardWidth / 2, cardY + cardHeight + 30);
+        ctx.font = '16px serif';
+        const cardName = card.name.length > 22 ? card.name.substring(0, 22) + '...' : card.name;
+        ctx.fillText(cardName, x + cardWidth / 2, cardY + cardHeight + 20);
         
         loadedImages++;
         
@@ -130,25 +130,25 @@ export const createShareableImage = async (cards: CardImage[]): Promise<string> 
 function addMysticalElements(ctx: CanvasRenderingContext2D, width: number, height: number) {
   // Add mystical symbols in corners using design system colors
   ctx.fillStyle = 'hsl(50, 60%, 56%)'; // --primary
-  ctx.font = '28px serif';
+  ctx.font = '24px serif';
   ctx.textAlign = 'left';
   
   // Top corners
-  ctx.fillText('✧', 30, 45);
+  ctx.fillText('✧', 25, 40);
   ctx.textAlign = 'right';
-  ctx.fillText('✧', width - 30, 45);
+  ctx.fillText('✧', width - 25, 40);
   
   // Bottom corners
   ctx.textAlign = 'left';
-  ctx.fillText('✧', 30, height - 25);
+  ctx.fillText('✧', 25, height - 20);
   ctx.textAlign = 'right';
-  ctx.fillText('✧', width - 30, height - 25);
+  ctx.fillText('✧', width - 25, height - 20);
   
   // Add mystical runes at bottom using secondary color
   ctx.textAlign = 'center';
-  ctx.font = '18px serif';
+  ctx.font = '16px serif';
   ctx.fillStyle = 'hsl(240, 98%, 76%)'; // --secondary
-  ctx.fillText('ᚨᚾᚲᛁᛖᚾᛏ • ᚹᛁᛋᛞᛟᛗ • ᚱᛖᚢᛖᚨᛚᛖᛞ', width / 2, height - 35);
+  ctx.fillText('ᚨᚾᚲᛁᛖᚾᛏ • ᚹᛁᛋᛞᛟᛗ • ᚱᛖᚢᛖᚨᛚᛖᛞ', width / 2, height - 30);
 }
 
 export const downloadImage = (dataUrl: string, filename: string = 'tarot-reading.png') => {
