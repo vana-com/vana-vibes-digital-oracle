@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Eye, Sparkles, ArrowLeft } from 'lucide-react';
+import { Eye, Sparkles, ArrowLeft, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
 import { generateAllReadings } from '@/utils/readingGenerator';
 import { useTarotCards } from '@/hooks/useTarotCards';
 import CareerFortuneLoading from '@/components/CareerFortuneLoading';
+import { LinkedInShareModal } from '@/components/LinkedInShareModal';
 const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
 
 interface TarotReadingProps {
@@ -16,6 +17,7 @@ const TarotReading = ({ linkedinData }: TarotReadingProps) => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<SelectedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { loading: cardsLoading, error: cardsError } = useTarotCards();
 
   // Initialize cards based on LinkedIn data analysis
@@ -341,13 +343,31 @@ const TarotReading = ({ linkedinData }: TarotReadingProps) => {
                 Your digital essence has been revealed through the mystical convergence of ancient wisdom and modern consciousness. 
                 Carry these sacred insights as you traverse the liminal spaces between digital and spiritual realms.
               </p>
-              <div className="text-accent font-amatic text-xl tracking-wide">
+              <div className="text-accent font-amatic text-xl tracking-wide mb-6">
                 ✧ MAY THE CODE BE WITH YOU ✧
               </div>
+              
+              {/* LinkedIn Share Button */}
+              <Button
+                onClick={() => setIsShareModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                <Linkedin className="w-5 h-5 mr-2" />
+                Share to LinkedIn
+              </Button>
             </div>
           )}
         </div>
       </div>
+
+      {/* LinkedIn Share Modal */}
+      <LinkedInShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        readings={cards.map(card => card.reading || '')}
+        selectedCards={cards.map(card => ({ name: card.title, image: card.image }))}
+        linkedinData={linkedinData}
+      />
     </div>
   );
 };
