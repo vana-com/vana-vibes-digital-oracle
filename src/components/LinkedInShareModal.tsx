@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Linkedin, Copy, Share } from 'lucide-react';
+import { Linkedin, Copy, Share, Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createShareableImage, downloadImage, CardImage } from '@/utils/imageComposer';
 
 interface LinkedInShareModalProps {
   isOpen: boolean;
@@ -24,6 +25,47 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
   const { toast } = useToast();
   const [postText, setPostText] = useState(() => generateLinkedInPost(readings, selectedCards, linkedinData));
   const [isSharing, setIsSharing] = useState(false);
+  const [shareableImage, setShareableImage] = useState<string>('');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  // Generate shareable image when modal opens
+  useEffect(() => {
+    if (isOpen && selectedCards.length > 0 && !shareableImage) {
+      generateShareableImage();
+    }
+  }, [isOpen, selectedCards]);
+
+  const generateShareableImage = async () => {
+    try {
+      setIsGeneratingImage(true);
+      const cardImages: CardImage[] = selectedCards.map(card => ({
+        name: card.name,
+        image: card.image
+      }));
+      
+      const imageDataUrl = await createShareableImage(cardImages);
+      setShareableImage(imageDataUrl);
+    } catch (error) {
+      console.error('Error generating shareable image:', error);
+      toast({
+        title: "Image generation failed",
+        description: "Using fallback display",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleDownloadImage = () => {
+    if (shareableImage) {
+      downloadImage(shareableImage, 'career-fortune-reading.png');
+      toast({
+        title: "Image downloaded!",
+        description: "Your shareable image has been saved",
+      });
+    }
+  };
 
   const handleCopyText = async () => {
     try {
@@ -68,23 +110,42 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Card Preview */}
-          <div className="grid grid-cols-3 gap-4">
-            {selectedCards.map((card, index) => (
-              <Card key={index} className="text-center">
-                <CardContent className="p-4">
-                  <div className="w-full aspect-[2/3] bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg mb-2 flex items-center justify-center text-white text-sm font-medium">
-                    {card.name}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {index === 0 ? 'Past' : index === 1 ? 'Present' : 'Future'}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+          {/* Shareable Image Preview */}
+          <div className="text-center">
+            {isGeneratingImage ? (
+              <div className="flex flex-col items-center justify-center py-12 bg-muted rounded-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                <p className="text-sm text-muted-foreground">Creating your shareable image...</p>
+              </div>
+            ) : shareableImage ? (
+              <div className="space-y-4">
+                <img 
+                  src={shareableImage} 
+                  alt="Shareable tarot reading" 
+                  className="max-w-full h-auto rounded-lg border-2 border-primary/20 shadow-lg mx-auto"
+                />
+                <Button variant="outline" size="sm" onClick={handleDownloadImage}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Image
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {selectedCards.map((card, index) => (
+                  <Card key={index} className="text-center">
+                    <CardContent className="p-4">
+                      <div className="w-full aspect-[2/3] bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg mb-2 flex items-center justify-center text-white text-sm font-medium">
+                        {card.name}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {index === 0 ? 'Past' : index === 1 ? 'Present' : 'Future'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Editable Post Text */}
           <div className="space-y-2">
             <label className="text-sm font-medium">LinkedIn Post Text</label>
             <Textarea
