@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
 import { generateAllReadings } from '@/utils/readingGenerator';
+import { useTarotCards } from '@/hooks/useTarotCards';
 const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
 
 interface TarotReadingProps {
@@ -14,43 +15,54 @@ const TarotReading = ({ linkedinData }: TarotReadingProps) => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<SelectedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
+  const { loading: cardsLoading, error: cardsError } = useTarotCards();
 
   // Initialize cards based on LinkedIn data analysis
   useEffect(() => {
-    if (linkedinData) {
-      const initializeReading = async () => {
-        console.log('Initializing tarot reading with LinkedIn data:', linkedinData);
-        
-        // Select 3 cards from the full 78-card deck based on professional themes
-        const selectedTarotCards = selectCardsBasedOnData(linkedinData);
-        const mappedCards = mapCardsToComponent(selectedTarotCards);
-        
-        // Set cards initially without readings
-        setCards(mappedCards);
-        setIsGeneratingReadings(true);
-        
-        try {
-          // Generate AI-powered mystical readings for each selected card
-          const readings = await generateAllReadings(mappedCards, linkedinData);
-          
-          // Update cards with generated readings
-          const cardsWithReadings = mappedCards.map((card, index) => ({
-            ...card,
-            reading: readings[index]
-          }));
-          
-          setCards(cardsWithReadings);
-        } catch (error) {
-          console.error('Error generating readings:', error);
-          // Keep cards without readings if generation fails
-        } finally {
-          setIsGeneratingReadings(false);
-        }
-      };
-
-      initializeReading();
+    if (!linkedinData) {
+      navigate('/');
+      return;
     }
-  }, [linkedinData]);
+
+    if (cardsLoading) return;
+
+    if (cardsError) {
+      console.error('Error loading tarot cards:', cardsError);
+      return;
+    }
+
+    const initializeReading = async () => {
+      console.log('Initializing tarot reading with LinkedIn data:', linkedinData);
+      
+      // Select 3 cards from the full 78-card deck based on professional themes
+      const selectedTarotCards = selectCardsBasedOnData(linkedinData);
+      const mappedCards = mapCardsToComponent(selectedTarotCards);
+      
+      // Set cards initially without readings
+      setCards(mappedCards);
+      setIsGeneratingReadings(true);
+      
+      try {
+        // Generate AI-powered mystical readings for each selected card
+        const readings = await generateAllReadings(mappedCards, linkedinData);
+        
+        // Update cards with generated readings
+        const cardsWithReadings = mappedCards.map((card, index) => ({
+          ...card,
+          reading: readings[index]
+        }));
+        
+        setCards(cardsWithReadings);
+      } catch (error) {
+        console.error('Error generating readings:', error);
+        // Keep cards without readings if generation fails
+      } finally {
+        setIsGeneratingReadings(false);
+      }
+    };
+
+    initializeReading();
+  }, [linkedinData, navigate, cardsLoading, cardsError]);
 
   const revealCard = (cardId: string) => {
     setCards(prevCards =>
