@@ -1,12 +1,37 @@
-import { useState } from 'react';
-import { LinkedinIcon, Eye, Stars, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LinkedinIcon, Eye, Stars, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import VanaWidget from './VanaWidget';
 import JSON5 from 'json5';
 
+// Define a type for the LinkedIn data
+interface Position {
+  title: string;
+  company: string;
+  startDate: string;
+  current?: boolean;
+  endDate?: string;
+  description: string;
+}
+
+interface Education {
+  school: string;
+  degree: string;
+  graduationYear: string;
+}
+
+interface LinkedInData {
+  firstName: string;
+  lastName: string;
+  headline: string;
+  summary: string;
+  positions: Position[];
+  skills: string[];
+  education: Education[];
+}
+
 interface LandingProps {
-  onDataConnect: (data: any) => void;
+  onDataConnect: (data: LinkedInData) => void;
 }
 
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
@@ -66,7 +91,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const parseJsonWithJSON5 = (data: string) => {
+  const parseJsonWithJSON5 = (data: string): LinkedInData | null => {
     try {
       let cleaned = data.replace(/```(json)?\s*/gi, '').replace(/```/g, '');
       if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
@@ -80,11 +105,11 @@ const Landing = ({ onDataConnect }: LandingProps) => {
     }
   }
 
-  const handleVanaResult = (data: any) => {
+  const handleVanaResult = (data: unknown) => {
     try {
-      let parsedData;
+      let parsedData: LinkedInData | null = null;
       if (typeof data === 'object' && data !== null) {
-        parsedData = data;
+        parsedData = data as LinkedInData;
       } else if (typeof data === 'string') {
         parsedData = parseJsonWithJSON5(data);
       }
