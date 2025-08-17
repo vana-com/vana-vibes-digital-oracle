@@ -1,77 +1,111 @@
 import { useState } from 'react';
 import { LinkedinIcon, Eye, Stars, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import VanaWidget from './VanaWidget';
+import JSON5 from 'json5';
 
 interface LandingProps {
   onDataConnect: (data: any) => void;
 }
 
+const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
+
+STEP 1: ANALYZE THE DATA
+Carefully examine the provided LinkedIn data and extract the following fields:
+- firstName
+- lastName
+- headline
+- summary
+- positions (including title, company, startDate, endDate, current status, description)
+- skills
+- education (including school, degree, graduationYear)
+
+STEP 2: OUTPUT VALID JSON
+Return ONLY a valid JSON object with the extracted information. The structure must match the example below exactly. Do NOT include any additional text, explanations, or markdown.
+
+{
+  "firstName": "Alex",
+  "lastName": "Smith",
+  "headline": "Senior Software Engineer at TechCorp",
+  "summary": "Passionate full-stack developer with 5+ years of experience...",
+  "positions": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "TechCorp",
+      "startDate": "2022-01",
+      "current": true,
+      "description": "Leading development..."
+    },
+    {
+      "title": "Full Stack Developer",
+      "company": "StartupXYZ",
+      "startDate": "2020-03",
+      "endDate": "2021-12",
+      "description": "Built customer-facing web applications..."
+    }
+  ],
+  "skills": ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker"],
+  "education": [
+    {
+      "school": "University of Technology",
+      "degree": "Computer Science",
+      "graduationYear": "2019"
+    }
+  ]
+}
+
+CRITICAL REQUIREMENTS:
+- Return ONLY valid JSON.
+- Handle missing data gracefully by using null or empty arrays.
+- Ensure all keys and the overall structure match the example precisely.
+
+Now, process this LinkedIn data: {{data}}`;
+
 const Landing = ({ onDataConnect }: LandingProps) => {
-  const [isConnecting, setIsConnecting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLinkedInConnect = async () => {
-    setIsConnecting(true);
-    
+  const parseJsonWithJSON5 = (data: string) => {
     try {
-      // Mock LinkedIn data for testing
-      const mockLinkedInData = {
-        firstName: "Alex",
-        lastName: "Smith",
-        headline: "Senior Software Engineer at TechCorp",
-        summary: "Passionate full-stack developer with 5+ years of experience building scalable web applications. Expert in React, Node.js, and cloud technologies. Love solving complex problems and mentoring junior developers.",
-        positions: [
-          {
-            title: "Senior Software Engineer",
-            company: "TechCorp",
-            startDate: "2022-01",
-            current: true,
-            description: "Leading development of microservices architecture and mentoring team members."
-          },
-          {
-            title: "Full Stack Developer",
-            company: "StartupXYZ",
-            startDate: "2020-03",
-            endDate: "2021-12",
-            description: "Built customer-facing web applications using React and Express.js."
-          }
-        ],
-        skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker"],
-        education: [
-          {
-            school: "University of Technology",
-            degree: "Computer Science",
-            graduationYear: "2019"
-          }
-        ]
-      };
+      let cleaned = data.replace(/```(json)?\s*/gi, '').replace(/```/g, '');
+      if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+        cleaned = cleaned.slice(1, -1);
+      }
+      cleaned = cleaned.replace(/\\"/g, '"').replace(/\\n/g, '\n');
+      return JSON5.parse(cleaned);
+    } catch (err) {
+      console.error("Invalid JSON after cleaning:", err, "\nCleaned string was:\n", data);
+      return null;
+    }
+  }
 
-      // Store mock data and redirect
-      onDataConnect(mockLinkedInData);
-      
-      toast({
-        title: "Connected Successfully!",
-        description: "Your professional journey awaits divination...",
-      });
+  const handleVanaResult = (data: any) => {
+    try {
+      let parsedData;
+      if (typeof data === 'object' && data !== null) {
+        parsedData = data;
+      } else if (typeof data === 'string') {
+        parsedData = parseJsonWithJSON5(data);
+      }
 
-      // Simulate brief delay then redirect
-      setTimeout(() => {
+      if (parsedData) {
+        onDataConnect(parsedData);
+        toast({
+          title: "Connected Successfully!",
+          description: "Your professional journey awaits divination...",
+        });
         navigate('/reading');
-      }, 1000);
-      
+      } else {
+        throw new Error("Failed to parse LinkedIn data from Vana widget.");
+      }
     } catch (error) {
-      console.error('Unexpected error during LinkedIn connection:', error);
+      console.error('Error processing Vana result:', error);
       toast({
         title: "Connection Failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: "Could not process your LinkedIn data. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsConnecting(false);
     }
   };
 
@@ -149,13 +183,13 @@ const Landing = ({ onDataConnect }: LandingProps) => {
               Where ancient wisdom meets digital consciousness
             </p>
             <p className="text-accent text-lg font-medium font-amatic text-xl tracking-wide">
-              ✧ Decode the mystical patterns in your conversations ✧
+              ✧ Decode the mystical patterns in your career ✧
             </p>
           </div>
 
           {/* Connection Section */}
           <div className="space-y-8">
-            <div className="relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 border-border hover:border-primary/50 hover:bg-card/50">
+            <div className="relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-all duration-300 border-border bg-card/50">
               <div className="text-center space-y-6">
                 <div className="relative mx-auto w-20 h-20 mb-6">
                   <div className="absolute inset-0 bg-gradient-cosmic rounded-full opacity-20 animate-glow-pulse"></div>
@@ -173,26 +207,21 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                   </p>
                 </div>
 
-                <Button 
-                  onClick={handleLinkedInConnect}
-                  disabled={isConnecting}
-                  className="bg-gradient-cosmic hover:shadow-glow-cyan transition-all duration-300 text-primary-foreground font-amatic font-bold px-8 py-4 text-2xl tracking-widest border border-mystic-gold/30 relative overflow-hidden group disabled:opacity-50"
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isConnecting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-foreground"></div>
-                        CHANNELING...
-                      </>
-                    ) : (
-                      <>
-                        <LinkedinIcon className="w-6 h-6" />
-                        ⚡ CONNECT TO LINKEDIN ⚡
-                      </>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-ethereal opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                  </span>
-                </Button>
+                <VanaWidget
+                  onError={(error) => {
+                    console.error("Vana Widget Error:", error);
+                    toast({
+                      title: "Connection Error",
+                      description: "Something went wrong. Please try again.",
+                      variant: "destructive",
+                    });
+                  }}
+                  onAuth={(wallet) => console.log("User authenticated:", wallet)}
+                  onResult={handleVanaResult}
+                  prompt={vanaPrompt}
+                  appId="com.lovable.tarot-oracle"
+                  schemaId={3}
+                />
               </div>
             </div>
 
