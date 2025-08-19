@@ -1,0 +1,155 @@
+{
+  "name": "LinkedIn User Data Schema",
+  "version": "1.0.0",
+  "dialect": "json",
+  "description": "A schema for validating the structure of LinkedIn user data claims from Reclaim Protocol.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "identifier": {
+        "type": "string",
+        "pattern": "^0x[a-f0-9]{64}$"
+      },
+      "claimData": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{40}$"
+          },
+          "timestampS": {
+            "type": "integer"
+          },
+          "context": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{64}$"
+          },
+          "epoch": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "provider",
+          "parameters",
+          "owner",
+          "timestampS",
+          "context",
+          "identifier",
+          "epoch"
+        ]
+      },
+      "signatures": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "witnesses": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^0x[a-f0-9]{40}$"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": ["id", "url"]
+        }
+      },
+      "publicData": {
+        "type": "object",
+        "properties": {
+          "linkedinUserData": {
+            "type": "object",
+            "properties": {
+              "experience": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "jobTitle": { "type": "string" },
+                    "companyName": { "type": "string" },
+                    "startDate": { "type": "string" },
+                    "endDate": { "type": "string" },
+                    "duration": { "type": "string" },
+                    "location": { "type": "string" },
+                    "description": { "type": "string" }
+                  },
+                  "required": ["jobTitle", "companyName", "startDate", "endDate", "duration", "location", "description"]
+                }
+              },
+              "about": {
+                "type": "object",
+                "properties": {
+                  "aboutText": { "type": "string" }
+                },
+                "required": ["aboutText"]
+              },
+              "hero": {
+                "type": "object",
+                "properties": {
+                  "fullName": { "type": "string" },
+                  "headline": { "type": "string" },
+                  "collegeFromHeroSection": { "type": "string" },
+                  "geoLocation": { "type": "string" },
+                  "connections": { "type": "string" },
+                  "backgroundImageUrl": { "type": "string", "format": "uri" },
+                  "profilePictureUrl": { "type": "string" }
+                },
+                "required": ["fullName", "headline", "collegeFromHeroSection", "geoLocation", "connections", "backgroundImageUrl", "profilePictureUrl"]
+              },
+              "certifications": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": { "type": "string" },
+                    "detail": { "type": "string" }
+                  },
+                  "required": ["title", "detail"]
+                }
+              },
+              "education": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "schoolName": { "type": "string" },
+                    "degree": { "type": "string" },
+                    "years": { "type": "string" },
+                    "logoUrl": { "type": "string", "format": "uri" }
+                  },
+                  "required": ["schoolName", "degree", "years", "logoUrl"]
+                }
+              }
+            },
+            "required": ["experience", "about", "hero", "certifications", "education"]
+          }
+        },
+        "required": ["linkedinUserData"]
+      }
+    },
+    "required": [
+      "identifier",
+      "claimData",
+      "signatures",
+      "witnesses",
+      "publicData"
+    ],
+    "additionalProperties": false
+  }
+}
