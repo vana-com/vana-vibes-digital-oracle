@@ -245,7 +245,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                   onResult={handleVanaResult}
                   prompt={vanaPrompt}
                   appId="com.lovable.tarot-oracle"
-                  schemaId={3}
+                  schemaId={23}
                 />
               </div>
             </div>
