@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const IFRAME_ORIGIN = "https://vana-vibes-web.vercel.app";
 const IFRAME_SRC = `${IFRAME_ORIGIN}/embed/upload`;
@@ -15,15 +15,14 @@ interface VanaWidgetProps {
 }
 
 const VanaWidget = ({
-                      onResult,
-                      onError,
-                      onAuth,
-                      prompt,
-                      appId,
-                      schemaId,
-                    }: VanaWidgetProps) => {
+  onResult,
+  onError,
+  onAuth,
+  prompt,
+  appId,
+  schemaId,
+}: VanaWidgetProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -35,7 +34,6 @@ const VanaWidget = ({
       switch (event.data.type) {
         case "ready":
           console.log("[DataApp] Widget ready, sending config");
-          setIsInitializing(false);
 
           // Send configuration to iframe
           if (iframeRef.current?.contentWindow) {
@@ -46,6 +44,20 @@ const VanaWidget = ({
                 schemaId,
                 aiPrompt: prompt,
                 embeddingOrigin: window.location.origin,
+              },
+              IFRAME_ORIGIN
+            );
+          }
+          break;
+
+        case "relay":
+          console.log(
+            "[DataApp] Received a relay message, sending to UploadWidget"
+          );
+          if (iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.postMessage(
+              {
+                ...event.data?.data,
               },
               IFRAME_ORIGIN
             );
@@ -92,10 +104,12 @@ const VanaWidget = ({
 
   return (
     <div className="w-full relative">
-      {isInitializing && (
-        <p className="text-center text-body">Connecting to Vana...</p>
-      )}
-      <iframe ref={iframeRef} src={IFRAME_SRC} className="w-full border-none" />
+      <iframe
+        ref={iframeRef}
+        src={IFRAME_SRC}
+        className="w-full border-none"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
+      />
     </div>
   );
 };
