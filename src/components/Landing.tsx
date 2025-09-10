@@ -1,8 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-import { LinkedinIcon, Eye, Stars, Sparkles } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import VanaWidget from './VanaWidget';
-import JSON5 from 'json5';
+import { useNavigate } from "react-router-dom";
+import { LinkedinIcon, Eye, Stars, Sparkles } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import VanaWidget from "./VanaWidget";
+import JSON5 from "json5";
+import { useMemo } from "react";
 
 // Define a type for the LinkedIn data
 interface Position {
@@ -91,26 +92,44 @@ const Landing = ({ onDataConnect }: LandingProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Determine Vana environment configuration
+  const vanaConfig = useMemo(() => {
+    const host = typeof window !== "undefined" ? window.location.hostname : "";
+    const isDev =
+      host.startsWith("dev.") ||
+      host.includes("localhost") ||
+      host.includes("vercel.app");
+
+    return isDev
+      ? { origin: "https://dev.app.vana.com", schemaId: 24 }
+      : { origin: "https://app.vana.com" };
+  }, []);
+
   const parseJsonWithJSON5 = (data: string): LinkedInData | null => {
     try {
-      let cleaned = data.replace(/```(json)?\s*/gi, '').replace(/```/g, '');
+      let cleaned = data.replace(/```(json)?\s*/gi, "").replace(/```/g, "");
       if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
         cleaned = cleaned.slice(1, -1);
       }
-      cleaned = cleaned.replace(/\\"/g, '"').replace(/\\n/g, '\n');
+      cleaned = cleaned.replace(/\\"/g, '"').replace(/\\n/g, "\n");
       return JSON5.parse(cleaned);
     } catch (err) {
-      console.error("Invalid JSON after cleaning:", err, "\nCleaned string was:\n", data);
+      console.error(
+        "Invalid JSON after cleaning:",
+        err,
+        "\nCleaned string was:\n",
+        data
+      );
       return null;
     }
-  }
+  };
 
   const handleVanaResult = (data: unknown) => {
     try {
       let parsedData: LinkedInData | null = null;
-      if (typeof data === 'object' && data !== null) {
+      if (typeof data === "object" && data !== null) {
         parsedData = data as LinkedInData;
-      } else if (typeof data === 'string') {
+      } else if (typeof data === "string") {
         parsedData = parseJsonWithJSON5(data);
       }
 
@@ -120,12 +139,12 @@ const Landing = ({ onDataConnect }: LandingProps) => {
           title: "Connected Successfully!",
           description: "Your professional journey awaits divination...",
         });
-        navigate('/reading');
+        navigate("/reading");
       } else {
         throw new Error("Failed to parse LinkedIn data from Vana widget.");
       }
     } catch (error) {
-      console.error('Error processing Vana result:', error);
+      console.error("Error processing Vana result:", error);
       toast({
         title: "Connection Failed",
         description: "Could not process your LinkedIn data. Please try again.",
@@ -222,17 +241,20 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                     <LinkedinIcon className="w-10 h-10 text-primary" />
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="font-amatic text-3xl font-bold text-foreground tracking-wide">
                     CONNECT YOUR PROFESSIONAL ESSENCE
                   </h3>
                   <p className="font-cormorant text-muted-foreground max-w-md mx-auto italic text-lg">
-                    Channel the mystical energy of your LinkedIn profile to reveal hidden career insights
+                    Channel the mystical energy of your LinkedIn profile to
+                    reveal hidden career insights
                   </p>
                 </div>
 
                 <VanaWidget
+                  appId="com.lovable.tarot-oracle"
+                  onResult={handleVanaResult}
                   onError={(error) => {
                     console.error("Vana Widget Error:", error);
                     toast({
@@ -241,11 +263,14 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                       variant: "destructive",
                     });
                   }}
-                  onAuth={(wallet) => console.log("User authenticated:", wallet)}
-                  onResult={handleVanaResult}
+                  onAuth={(wallet) =>
+                    console.log("User authenticated:", wallet)
+                  }
+                  iframeOrigin={vanaConfig.origin}
+                  {...(vanaConfig.schemaId && {
+                    schemaId: vanaConfig.schemaId,
+                  })}
                   prompt={vanaPrompt}
-                  appId="com.lovable.tarot-oracle"
-                  schemaId={24}
                 />
               </div>
             </div>
@@ -267,7 +292,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                   <div className="w-1 h-1 bg-mystic-gold rounded-full" />
                 </div>
               </div>
-              
+
               <h4 className="font-amatic text-2xl font-bold text-mystic-gold mb-4 flex items-center justify-center gap-2 tracking-wide">
                 <Eye className="w-6 h-6" />
                 RITUAL OF PROFESSIONAL DIVINATION
@@ -275,16 +300,28 @@ const Landing = ({ onDataConnect }: LandingProps) => {
               </h4>
               <ol className="text-left space-y-4 text-foreground/80 font-cormorant text-lg">
                 <li className="flex items-start gap-4">
-                  <span className="text-primary font-bold text-2xl font-amatic">I.</span>
-                  <span className="italic">Grant access to your LinkedIn professional aura</span>
+                  <span className="text-primary font-bold text-2xl font-amatic">
+                    I.
+                  </span>
+                  <span className="italic">
+                    Grant access to your LinkedIn professional aura
+                  </span>
                 </li>
                 <li className="flex items-start gap-4">
-                  <span className="text-accent font-bold text-2xl font-amatic">II.</span>
-                  <span className="italic">Allow the oracle to channel your career essence</span>
+                  <span className="text-accent font-bold text-2xl font-amatic">
+                    II.
+                  </span>
+                  <span className="italic">
+                    Allow the oracle to channel your career essence
+                  </span>
                 </li>
                 <li className="flex items-start gap-4">
-                  <span className="text-secondary font-bold text-2xl font-amatic">III.</span>
-                  <span className="italic">Witness the mystical revelation of your professional destiny</span>
+                  <span className="text-secondary font-bold text-2xl font-amatic">
+                    III.
+                  </span>
+                  <span className="italic">
+                    Witness the mystical revelation of your professional destiny
+                  </span>
                 </li>
               </ol>
             </div>

@@ -2,32 +2,32 @@
 
 import { useEffect, useRef } from "react";
 
-const IFRAME_ORIGIN = "https://vana-vibes-web.vercel.app";
-const IFRAME_SRC = `${IFRAME_ORIGIN}/embed/upload`;
-
 interface VanaWidgetProps {
+  appId: string;
   onResult: (data: string) => void;
   onError: (error: string) => void;
   onAuth: (walletAddress: string) => void;
-  prompt?: string;
-  appId: string;
+  iframeOrigin?: string;
   schemaId?: number;
+  prompt?: string;
 }
 
 const VanaWidget = ({
+  appId,
   onResult,
   onError,
   onAuth,
-  prompt,
-  appId,
+  iframeOrigin = "https://app.vana.com",
   schemaId,
+  prompt,
 }: VanaWidgetProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeSrc = `${iframeOrigin}/embed/upload`;
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       // Validate origin for security
-      if (event.origin !== IFRAME_ORIGIN) {
+      if (event.origin !== iframeOrigin) {
         return;
       }
 
@@ -45,7 +45,7 @@ const VanaWidget = ({
                 aiPrompt: prompt,
                 embeddingOrigin: window.location.origin,
               },
-              IFRAME_ORIGIN
+              iframeOrigin
             );
           }
           break;
@@ -59,7 +59,7 @@ const VanaWidget = ({
               {
                 ...event.data?.data,
               },
-              IFRAME_ORIGIN
+              iframeOrigin
             );
           }
           break;
@@ -100,13 +100,13 @@ const VanaWidget = ({
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [onResult, onError, onAuth, prompt, appId, schemaId]);
+  }, [onResult, onError, onAuth, prompt, appId, schemaId, iframeOrigin]);
 
   return (
     <div className="w-full relative">
       <iframe
         ref={iframeRef}
-        src={IFRAME_SRC}
+        src={iframeSrc}
         className="w-full border-none"
         sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
       />
