@@ -1,6 +1,12 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { TarotCard, majorArcana, minorArcana, allTarotCards } from '@/data/tarotCards';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  TarotCard,
+  majorArcana,
+  minorArcana,
+  allTarotCards,
+} from "@/data/tarotCards";
+import { isTestMode, getTestTarotCards } from "@/lib/test-mode";
 
 export const useTarotCards = () => {
   const [loading, setLoading] = useState(true);
@@ -10,30 +16,47 @@ export const useTarotCards = () => {
     const fetchTarotCards = async () => {
       try {
         setLoading(true);
+
+        if (isTestMode()) {
+          const testCards: TarotCard[] = getTestTarotCards();
+          majorArcana.length = 0;
+          minorArcana.length = 0;
+          allTarotCards.length = 0;
+          testCards.forEach((card) => {
+            if (card.arcana === "major") {
+              majorArcana.push(card);
+            } else {
+              minorArcana.push(card);
+            }
+            allTarotCards.push(card);
+          });
+          setLoading(false);
+          return;
+        }
         const { data, error } = await supabase
-          .from('tarot_cards')
-          .select('*')
-          .order('id');
+          .from("tarot_cards")
+          .select("*")
+          .order("id");
 
         if (error) throw error;
 
         if (data) {
           // Transform database format to app format
-          const transformedCards: TarotCard[] = data.map(card => ({
+          const transformedCards: TarotCard[] = data.map((card) => ({
             id: card.id,
             name: card.name,
             suit: card.suit,
             number: card.number,
-            arcana: card.arcana as 'major' | 'minor',
+            arcana: card.arcana as "major" | "minor",
             keywords: card.keywords || [],
             meaning: {
               upright: card.meaning_upright,
-              reversed: card.meaning_reversed
+              reversed: card.meaning_reversed,
             },
             symbolism: card.symbolism || [],
             element: card.element,
             astrology: card.astrology,
-            image_url: card.image_url
+            image_url: card.image_url,
           }));
 
           // Update the exported arrays
@@ -41,8 +64,8 @@ export const useTarotCards = () => {
           minorArcana.length = 0;
           allTarotCards.length = 0;
 
-          transformedCards.forEach(card => {
-            if (card.arcana === 'major') {
+          transformedCards.forEach((card) => {
+            if (card.arcana === "major") {
               majorArcana.push(card);
             } else {
               minorArcana.push(card);
@@ -51,8 +74,10 @@ export const useTarotCards = () => {
           });
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch tarot cards');
-        console.error('Error fetching tarot cards:', err);
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch tarot cards",
+        );
+        console.error("Error fetching tarot cards:", err);
       } finally {
         setLoading(false);
       }
