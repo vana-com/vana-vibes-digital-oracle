@@ -1,46 +1,66 @@
-import { useState, useEffect } from 'react';
-import TarotReading from '@/components/TarotReading';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import TarotReading from "@/components/TarotReading";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Reading = () => {
-  const [linkedinData, setLinkedinData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  console.log("Reading component mounted");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get data immediately from router state or sessionStorage
+  const initialData =
+    location.state?.linkedinData ||
+    (() => {
+      const mockData = sessionStorage.getItem("tarot-linkedin-data");
+      if (mockData) {
+        try {
+          return JSON.parse(mockData);
+        } catch (e) {
+          return null;
+        }
+      }
+      return null;
+    })();
+
+  const [linkedinData, setLinkedinData] = useState(initialData);
+  const [isLoading, setIsLoading] = useState(!initialData);
 
   useEffect(() => {
-    // Check for mock data in sessionStorage first
-    const mockData = sessionStorage.getItem('tarot-linkedin-data');
-    
+    console.log("Reading useEffect running");
+
+    // Check if data was passed through router state
+    const stateData = location.state?.linkedinData;
+    console.log("Router state data:", stateData ? "yes" : "no");
+
+    if (stateData) {
+      console.log("Using data from router state:", stateData);
+      setLinkedinData(stateData);
+      setIsLoading(false);
+      return;
+    }
+
+    // Fallback: check sessionStorage
+    const mockData = sessionStorage.getItem("tarot-linkedin-data");
+    console.log("Found mockData in storage:", mockData ? "yes" : "no");
+
     if (mockData) {
       try {
         const parsedData = JSON.parse(mockData);
+        console.log("Successfully parsed data from storage:", parsedData);
         setLinkedinData(parsedData);
         setIsLoading(false);
         return;
       } catch (error) {
-        console.error('Error parsing mock data:', error);
+        console.error("Error parsing data:", error);
       }
     }
 
-    // If no mock data, redirect back to home
-    navigate('/');
-  }, [navigate]);
+    // If no data found anywhere, redirect back to home
+    console.log("No data found, redirecting to home");
+    navigate("/");
+  }, [navigate, location.state]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-midnight flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="font-amatic text-2xl text-foreground">Channeling your professional aura...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return <TarotReading linkedinData={linkedinData} />;
+  return <TarotReading linkedinData={linkedinData} isLoading={isLoading} />;
 };
 
 export default Reading;
