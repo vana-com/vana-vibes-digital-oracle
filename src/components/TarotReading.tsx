@@ -351,10 +351,11 @@ const TarotReading = ({
               {/* Social Sharing */}
               <div className="text-center mb-4">
                 <VanaAppSocialShareWidget
-                  shareContent="My data just predicted my future.
+                  shareContent={`My data just predicted my future.
 What does your data say about the week ahead?
-Find out: app.vana.org #datarevolution"
+Find out: app.vana.org #datarevolution`}
                   suffix=""
+                  hideTitle={true}
                   hideToast={true}
                   onShare={handleShare}
                   onCopySuccess={(platform, _shareText, delayMs) => {
