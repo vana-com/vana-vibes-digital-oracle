@@ -1,6 +1,11 @@
 import CareerFortuneLoading from "@/components/CareerFortuneLoading";
-import { LinkedInShareModal } from "@/components/LinkedInShareModal";
+// import { LinkedInShareModal } from "@/components/LinkedInShareModal"; // Disabled pending UX styling
 import { useTarotCards } from "@/hooks/useTarotCards";
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { Share2 } from 'lucide-react';
+// import { Download } from 'lucide-react'; // For download feature - disabled pending UX
+import * as LucideIcons from 'lucide-react';
 import { isTestMode } from "@/lib/test-mode";
 import { cn } from "@/lib/utils";
 import {
@@ -37,9 +42,10 @@ const TarotReading = ({
   isLoading = false,
 }: TarotReadingProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  // const [isShareModalOpen, setIsShareModalOpen] = useState(false); // For download modal - disabled pending UX
   const [completedReadings, setCompletedReadings] = useState(0);
   const { loading: cardsLoading, error: cardsError } = useTarotCards();
 
@@ -101,6 +107,56 @@ const TarotReading = ({
 
     initializeReading();
   }, [linkedinData, navigate, cardsLoading, cardsError]);
+
+  const copyAndOpenWithCountdown = (text: string, platform: string, url: string) => {
+    // Copy to clipboard
+    navigator.clipboard.writeText(text);
+    
+    // Create a countdown toast with progress bar
+    const totalTime = 3;
+    let countdown = totalTime;
+    let progress = 100;
+    
+    const { update, dismiss } = toast({
+      title: "Copied to clipboard!",
+      description: (
+        <div className="space-y-2">
+          <p>Opening {platform} in {countdown}... Paste your message there.</p>
+          <Progress value={progress} className="h-1 bg-green/20 [&>div]:bg-green" />
+        </div>
+      ),
+      duration: Infinity, // We'll manually dismiss it
+      className: "border-green bg-black text-green [&>div]:text-green",
+    });
+    
+    // Update progress every 100ms for smooth animation
+    const progressTimer = setInterval(() => {
+      progress = Math.max(0, progress - (100 / (totalTime * 10))); // Decrease by 10% per 100ms
+      const currentCountdown = Math.ceil(progress / (100 / totalTime));
+      
+      if (currentCountdown !== countdown && currentCountdown > 0) {
+        countdown = currentCountdown;
+      }
+      
+      if (progress > 0) {
+        update({
+          id: undefined,
+          title: "Copied to clipboard!",
+          description: (
+            <div className="space-y-2">
+              <p>Opening {platform} in {countdown}... Paste your message there.</p>
+              <Progress value={progress} className="h-1 bg-green/20 [&>div]:bg-green" />
+            </div>
+          ),
+          className: "border-green bg-black text-green [&>div]:text-green",
+        });
+      } else {
+        clearInterval(progressTimer);
+        dismiss();
+        window.open(url, '_blank');
+      }
+    }, 100);
+  };
 
   const revealCard = (cardId: string) => {
     setCards((prevCards) =>
@@ -224,14 +280,6 @@ const TarotReading = ({
                 overdrive
                 onDone={() => setHeaderDone(true)}
               />
-              {cards.every((card) => card.isRevealed && card.isCompleted) && (
-                <BlinkButton
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="text-label w-auto text-black bg-green"
-                >
-                  Share to LinkedIn
-                </BlinkButton>
-              )}
             </>
           }
         />
@@ -342,29 +390,82 @@ const TarotReading = ({
             convergence of ancient wisdom and modern consciousness. Carry
             these sacred insights as you traverse the liminal spaces between
             digital and spiritual realms. */}
-        {cards.every((card) => card.isRevealed && card.isCompleted) && (
+        {cards.length > 0 && cards.every((card) => card.isRevealed && card.isCompleted) && (
           <div
             className={cn(
               "lg:px-12 flex flex-col justify-start lg:min-h-[20vh]",
             )}
           >
-            {/* LinkedIn Share Button */}
-            <button
-              onClick={() => setIsShareModalOpen(true)}
-              className={cn(
-                "text-subheading text-green",
-                "border border-green px-4 py-3",
-                "w-full text-center",
-              )}
-            >
-              Share to LinkedIn
-            </button>
+            {/* Social Sharing */}
+            <div className="text-center mb-4">
+              <div className="flex items-center justify-center gap-1 mb-6">
+                <Share2 className="w-4 h-4 text-green" />
+                <span className="text-sm font-medium text-green">Share your oracle reading</span>
+              </div>
+              
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => {
+                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: app.vana.com\n#DATAREVOLUTION`;
+                    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                    copyAndOpenWithCountdown(text, "Twitter", url);
+                  }}
+                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
+                >
+                  <LucideIcons.Twitter className="w-5 h-5 text-green" />
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: https://app.vana.com\n#DATAREVOLUTION`;
+                    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin)}`;
+                    copyAndOpenWithCountdown(text, "Facebook", url);
+                  }}
+                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
+                >
+                  <LucideIcons.Facebook className="w-5 h-5 text-green" />
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: app.vana.com\n#DATAREVOLUTION`;
+                    const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+                    copyAndOpenWithCountdown(text, "LinkedIn", url);
+                  }}
+                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
+                >
+                  <LucideIcons.Linkedin className="w-5 h-5 text-green" />
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: https://app.vana.com\n#DATAREVOLUTION`;
+                    const url = "https://www.instagram.com/";
+                    copyAndOpenWithCountdown(text, "Instagram", url);
+                  }}
+                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
+                >
+                  <LucideIcons.Instagram className="w-5 h-5 text-green" />
+                </button>
+              </div>
+              
+              {/* Download Option - Disabled pending UX styling */}
+              {/* <div className="mt-6 pt-6 border-t border-green/20">
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="mx-auto flex items-center gap-2 px-4 py-2 border border-green text-green hover:bg-green hover:text-black transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Reading</span>
+                </button>
+              </div> */}
+            </div>
           </div>
         )}
       </div>
 
-      {/* LinkedIn Share Modal */}
-      <LinkedInShareModal
+      {/* Reading Download Modal - Disabled pending UX styling */}
+      {/* <LinkedInShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         readings={cards.map((card) => card.reading || "")}
@@ -372,8 +473,7 @@ const TarotReading = ({
           name: card.title,
           image: card.image,
         }))}
-        linkedinData={linkedinData}
-      />
+      /> */}
     </>
   );
 };
