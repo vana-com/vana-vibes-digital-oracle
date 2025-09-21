@@ -1,42 +1,43 @@
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useCallback, useState } from "react";
-import { ScreenWrapper } from "./ScreenWrapper";
-import ScrambleText from "./ScrambleText";
+import { LinkedInData } from "@/lib/linkedin-data.type";
 import { cn } from "@/lib/utils";
-import { BlinkButton } from "./BlinkButton";
 import JSON5 from "json5";
-import { useMemo } from "react";
-import { VanaWidget } from "./VanaWidget";
-
-// Define a type for the LinkedIn data
-interface Position {
-  title: string;
-  company: string;
-  startDate: string;
-  current?: boolean;
-  endDate?: string;
-  description: string;
-}
-
-interface Education {
-  school: string;
-  degree: string;
-  graduationYear: string;
-}
-
-interface LinkedInData {
-  firstName: string;
-  lastName: string;
-  headline: string;
-  summary: string;
-  positions: Position[];
-  skills: string[];
-  education: Education[];
-}
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { LandingCard } from "./LandingCard";
+import { ScreenWrapper } from "./ScreenWrapper";
+import VanaWidget from "./VanaWidget";
+import BlockLoader from "./BlockLoader";
 
 interface LandingProps {
-  onDataConnect?: (data: LinkedInData) => void;
+  onDataConnect?: (data: unknown) => void;
+}
+
+// Landing-only, stricter version of linkedin-data.type.ts
+interface LandingPosition {
+  title?: string;
+  company?: string;
+  startDate?: string;
+  current?: boolean;
+  endDate?: string;
+  description?: string;
+}
+
+interface LandingEducation {
+  school?: string;
+  degree?: string;
+  graduationYear?: string;
+}
+
+interface LinkedInLandingData {
+  firstName?: string;
+  lastName?: string;
+  headline?: string;
+  summary?: string;
+  positions?: LandingPosition[];
+  skills?: string[];
+  education?: LandingEducation[];
+  [key: string]: unknown;
 }
 
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
@@ -92,6 +93,39 @@ CRITICAL REQUIREMENTS:
 
 Now, process this LinkedIn data: {{data}}`;
 
+// This will be true only if VITE_USE_TEST_PAYLOAD is exactly the string "true".
+// If the env var is missing or any other value, it's false.
+const USE_TEST_PAYLOAD =
+  String(import.meta.env.VITE_USE_TEST_PAYLOAD ?? "false")
+    .trim()
+    .toLowerCase() === "true";
+
+// Deprecated: legacy/new widget UI toggle removed. We'll adjust UI when new widget is ready.
+
+const testPayload: LinkedInLandingData = {
+  firstName: "Demo",
+  lastName: "User",
+  headline: "Software Developer",
+  summary: "Experienced developer passionate about technology",
+  positions: [
+    {
+      title: "Senior Developer",
+      company: "Tech Corp",
+      startDate: "2022-01",
+      current: true,
+      description: "Building amazing software",
+    },
+  ],
+  skills: ["JavaScript", "React", "Node.js"],
+  education: [
+    {
+      school: "University of Technology",
+      degree: "Computer Science",
+      graduationYear: "2020",
+    },
+  ],
+};
+
 const Landing = ({ onDataConnect }: LandingProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -99,17 +133,18 @@ const Landing = ({ onDataConnect }: LandingProps) => {
   // Determine Vana environment configuration
   const vanaConfig = useMemo(() => {
     const host = typeof window !== "undefined" ? window.location.hostname : "";
+    // Vite: import.meta.env.DEV is true only in dev; combine with host checks
     const isDev =
+      import.meta.env.DEV ||
       host.startsWith("dev.") ||
-      host.includes("localhost") ||
-      host.includes("vercel.app");
+      host.includes("localhost");
 
     return isDev
       ? { origin: "https://dev.app.vana.com", schemaId: 24 }
       : { origin: "https://app.vana.com" };
   }, []);
 
-  const parseJsonWithJSON5 = (data: string): LinkedInData | null => {
+  const parseJsonWithJSON5 = (data: string): LinkedInLandingData | null => {
     try {
       let cleaned = data.replace(/```(json)?\s*/gi, "").replace(/```/g, "");
       if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
@@ -128,21 +163,29 @@ const Landing = ({ onDataConnect }: LandingProps) => {
     }
   };
 
+  const persistLinkedInData = useCallback(
+    (data: LinkedInData) => {
+      try {
+        sessionStorage.setItem("tarot-linkedin-data", JSON.stringify(data));
+      } catch (e) {
+        console.error("Failed to persist data", e);
+      }
+      onDataConnect?.(data);
+    },
+    [onDataConnect],
+  );
+
   const handleVanaResult = (data: unknown) => {
     try {
-      let parsedData: LinkedInData | null = null;
+      let parsedData: LinkedInLandingData | null = null;
       if (typeof data === "object" && data !== null) {
-        parsedData = data as LinkedInData;
+        parsedData = data as LinkedInLandingData;
       } else if (typeof data === "string") {
         parsedData = parseJsonWithJSON5(data);
       }
 
       if (parsedData) {
-        onDataConnect(parsedData);
-        toast({
-          title: "Connected Successfully!",
-          description: "Your professional journey awaits divination...",
-        });
+        persistLinkedInData(parsedData as LinkedInData);
         navigate("/reading");
       } else {
         throw new Error("Failed to parse LinkedIn data from Vana widget.");
@@ -157,169 +200,78 @@ const Landing = ({ onDataConnect }: LandingProps) => {
     }
   };
 
-  // Reveal CTA after both scrambles complete
-  const [titleDone, setTitleDone] = useState(false);
-  const [subtitleDone, setSubtitleDone] = useState(false);
-  const [step1Done, setStep1Done] = useState(false);
-  const [step2Done, setStep2Done] = useState(false);
-  const [step3Done, setStep3Done] = useState(false);
-  const bothDone =
-    titleDone && subtitleDone && step1Done && step2Done && step3Done;
-
-  const handleAccept = useCallback(
-    (e: React.MouseEvent) => {
-      console.log("handleAccept called");
-      e.preventDefault();
-      e.stopPropagation();
-
-      try {
-        // Simple test payload for development
-        const payload = {
-          firstName: "Demo",
-          lastName: "User",
-          headline: "Software Developer",
-          summary: "Experienced developer passionate about technology",
-          positions: [
-            {
-              title: "Senior Developer",
-              company: "Tech Corp",
-              startDate: "2022-01",
-              current: true,
-              description: "Building amazing software",
-            },
-          ],
-          skills: ["JavaScript", "React", "Node.js"],
-          education: [
-            {
-              school: "University of Technology",
-              degree: "Computer Science",
-              graduationYear: "2020",
-            },
-          ],
-        };
-
-        console.log("Passing data directly through router state");
-        // Pass data directly through router state instead of sessionStorage
-        navigate("/reading", { state: { linkedinData: payload } });
-      } catch (e) {
-        console.error("Failed to persist data", e);
-        toast({
-          title: "Error",
-          description: "Could not prepare your reading.",
-          variant: "destructive",
-        });
-      }
-    },
-    [navigate, toast],
+  // Control when the widget appears (always after Accept)
+  const [showWidget, setShowWidget] = useState(false);
+  const shouldRenderWidget = useMemo(
+    () => !USE_TEST_PAYLOAD && showWidget,
+    [showWidget],
   );
+
+  const handleAccept = useCallback(() => {
+    console.log("handleAccept called");
+
+    try {
+      if (USE_TEST_PAYLOAD) {
+        persistLinkedInData(testPayload as LinkedInData);
+        navigate("/reading");
+        return;
+      }
+      // Production flow: reveal the Vana widget (new design) or no-op if legacy displays immediately
+      setShowWidget(true);
+    } catch (e) {
+      console.error("Failed to persist data", e);
+      toast({
+        title: "Error",
+        description: "Could not prepare your reading.",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast, persistLinkedInData]);
 
   return (
     <ScreenWrapper>
-      <div className="container min-h-dvh px-4 py-32 flex flex-col justify-start lg:items-center lg:justify-center max-w-2xl relative">
-        <div className="border-2 border-green lg:w-3/4 min-h-[50vh] grid grid-rows-[auto_auto_1fr] bg-green/0 mix-blend-color-dodge">
-          <div className="p-2 lg:p-4">
-            <ScrambleText
-              as="h1"
-              className="text-title text-green"
-              text="Digital Oracle"
-              delayMs={1000}
-              speed={0.25}
-              scramble={2}
-              chance={0.8}
-              step={1}
-              overdrive
-              onDone={() => setTitleDone(true)}
-            />
-          </div>
-          <div className="p-2 lg:p-4">
-            <ScrambleText
-              as="h2"
-              className="text-subheading text-green"
-              text="Decode the mystical patterns in your career."
-              delayMs={1500}
-              speed={0.25}
-              scramble={1}
-              chance={0.8}
-              step={1}
-              overdrive
-              onDone={() => setSubtitleDone(true)}
-            />
-          </div>
-          <div className="p-2 lg:p-4">
-            <ScrambleText
-              as="div"
-              className="text-label font-display text-green"
-              text="→→ Grant access to your LinkedIn aura"
-              delayMs={1750}
-              speed={0.5}
-              scramble={1}
-              chance={0.8}
-              step={2}
-              overdrive
-              onDone={() => setStep1Done(true)}
-            />
-            <ScrambleText
-              as="div"
-              className="text-label font-display text-green"
-              text="→→ Allow the oracle to channel your career essence"
-              delayMs={2000}
-              speed={0.5}
-              scramble={1}
-              chance={0.8}
-              step={2}
-              overdrive
-              onDone={() => setStep2Done(true)}
-            />
-            <ScrambleText
-              as="div"
-              className="text-label font-display text-green"
-              text="→→ Witness the revelation of your professional destiny"
-              delayMs={2250}
-              speed={0.5}
-              scramble={1}
-              chance={0.8}
-              step={2}
-              overdrive
-              onDone={() => setStep3Done(true)}
-            />
-          </div>
-          <div
-            className={cn(
-              "mt-auto",
-              "p-2 lg:p-4 min-h-[28px] flex justify-en",
-              bothDone && "border-t-2 border-green",
-            )}
-          >
-            {bothDone ? (
-              <BlinkButton
-                onClick={handleAccept}
-                className="justify-end text-green"
-              >
-                Accept
-              </BlinkButton>
-            ) : null}
-          </div>
-        </div>
+      <div
+        className={cn(
+          "container max-w-2xl min-h-dvh px-4 py-32 relative",
+          "flex flex-col justify-start lg:items-center lg:justify-center ",
+        )}
+      >
+        {/* When VanaWidget works as intended, it will show as a dialog above this page, so we will not need to conditionally hide the LandingCard */}
+        {!showWidget && <LandingCard handleAccept={handleAccept} />}
 
-        {/* Connection Section */}
-        {/* <VanaWidget
-          appId="com.lovable.tarot-oracle"
-          onResult={handleVanaResult}
-          onError={(error) => {
-            console.error("Vana Widget Error:", error);
-            toast({
-              title: "Connection Error",
-              description: "Something went wrong. Please try again.",
-              variant: "destructive",
-            });
-          }}
-          onAuth={(wallet) => console.log("User authenticated:", wallet)}
-          iframeOrigin={vanaConfig.origin}
-          {...(vanaConfig.schemaId && {
-            schemaId: vanaConfig.schemaId,
-          })}
-          prompt={vanaPrompt}
-        /> */}
+        {/* Vana Data Connection */}
+        {shouldRenderWidget ? (
+          <VanaWidget
+            appId="com.lovable.tarot-oracle"
+            onResult={handleVanaResult}
+            onError={(error) => {
+              console.error("Vana Widget Error:", error);
+              toast({
+                title: "Connection Error",
+                description: "Something went wrong. Please try again.",
+                variant: "destructive",
+              });
+            }}
+            onAuth={(wallet) => console.log("User authenticated:", wallet)}
+            iframeOrigin={vanaConfig.origin}
+            {...(vanaConfig.schemaId && {
+              schemaId: vanaConfig.schemaId,
+            })}
+            prompt={vanaPrompt}
+            loadingNode={
+              <div
+                className="flex items-center justify-center h-full w-full mix-blend-color-dodge"
+                aria-live="polite"
+              >
+                <div className="text-label text-green flex items-center gap-4">
+                  <BlockLoader mode={6} />
+                  <span>Loading</span>
+                </div>
+              </div>
+            }
+            className="max-w-[600px] mx-auto"
+          />
+        ) : null}
       </div>
     </ScreenWrapper>
   );

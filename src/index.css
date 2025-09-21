@@ -207,6 +207,15 @@
   @apply text-4xl lg:text-5xl leading-[0.9];
 }
 
+.wrapper {
+  @apply min-h-dvh relative z-10;
+  /* @apply max-w-6xl w-full mx-auto; */
+  @apply container max-w-6xl;
+  @apply py-3 px-4 lg:p-8 pb-[10vh];
+  @apply grid grid-rows-[auto_1fr_auto];
+  @apply space-y-12;
+}
+
 @keyframes blinkIn {
   0% {
     opacity: 0;

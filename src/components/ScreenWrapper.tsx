@@ -3,7 +3,7 @@
 // import bgImage from "@/assets/nasa-5477L9Z5eqI-unsplash.jpg";
 // import bgImage from "@/assets/red.png";
 // import bgImage from "@/assets/sun-river.jpeg";
-import bgImage from "@/assets/cloud-vortex.png";
+import bgImage from "@/assets/cloud-vortex.webp";
 
 export const ScreenWrapper = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -1,4 +1,3 @@
-import CareerFortuneLoading from "@/components/CareerFortuneLoading";
 import { LinkedInShareModal } from "@/components/LinkedInShareModal";
 import { useTarotCards } from "@/lib/card-selection/use-tarot-cards";
 import { cn } from "@/lib/utils";
@@ -9,26 +8,21 @@ import { generateAllReadings } from "@/lib/readings/reading-generator";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BlinkButton } from "./BlinkButton";
-import { ReadingHeader } from "./ReadingHeader";
+import { ReadingHeader, ReadingHeaderLoading } from "./ReadingHeader";
 import ScrambleText from "./ScrambleText";
 import { createSparkles } from "@/lib/create-sparkles";
+import BlockLoader from "./BlockLoader";
+import { useCareerFortuneMessages } from "@/lib/use-career-fortune-messages";
+import { LinkedInData } from "@/lib/linkedin-data.type";
 
 interface ExtendedCard extends SelectedCard {
   isCompleted: boolean;
 }
 
 interface TarotReadingProps {
-  linkedinData: unknown;
+  linkedinData: LinkedInData | null;
   isLoading?: boolean;
 }
-
-const wrapperStyle = [
-  "min-h-dvh relative z-10",
-  "max-w-6xl w-full mx-auto",
-  "py-3 px-4 lg:p-8 pb-[10vh]",
-  " grid grid-rows-[auto_1fr_auto]",
-  "space-y-12",
-];
 
 const TarotReading = ({
   linkedinData,
@@ -39,15 +33,13 @@ const TarotReading = ({
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { loading: cardsLoading, error: cardsError, decks } = useTarotCards();
+  const { messages, currentMessage } = useCareerFortuneMessages(
+    linkedinData ?? undefined,
+  );
 
   // Initialize cards based on LinkedIn data analysis
   useEffect(() => {
-    if (!linkedinData) {
-      // Parent (Reading.tsx) owns redirect; do nothing here
-      return;
-    }
-
-    if (cardsLoading) return;
+    if (cardsLoading || !linkedinData) return;
 
     if (cardsError) {
       console.error("Error loading tarot cards:", cardsError);
@@ -88,7 +80,7 @@ const TarotReading = ({
     };
 
     initializeReading();
-  }, [linkedinData, navigate, cardsLoading, cardsError, decks]);
+  }, [linkedinData, cardsLoading, cardsError, decks]);
 
   const revealCard = (cardId: string) => {
     setCards((prevCards) =>
@@ -104,31 +96,32 @@ const TarotReading = ({
     }
   };
 
-  // Reveal CTA after both scrambles complete
-  const [headerDone, setHeaderDone] = useState(false);
-
-  if (!linkedinData) {
-    console.log("TarotReading: No linkedinData, isLoading:", isLoading);
-    if (isLoading) return null;
-    console.log("TarotReading: Redirecting to home");
-    navigate("/");
-    return null;
+  if (isLoading || !linkedinData) {
+    return (
+      <div className="wrapper">
+        <ReadingHeaderLoading />
+      </div>
+    );
   }
 
-  console.log("TarotReading: Has linkedinData:", !!linkedinData);
-
-  // Show career fortune loading screen while generating readings (not in test)
-  if (isGeneratingReadings) {
+  if (isGeneratingReadings || cards.length === 0) {
     return (
-      <div className={cn(wrapperStyle)}>
-        <CareerFortuneLoading linkedinData={linkedinData} />
+      <div className="wrapper">
+        <ReadingHeaderLoading
+          bottomNode={
+            <>
+              <BlockLoader mode={3} />
+              {messages[currentMessage]}
+            </>
+          }
+        />
       </div>
     );
   }
 
   return (
     <>
-      <div className={cn(wrapperStyle)}>
+      <div className="wrapper">
         <ReadingHeader
           topNode={
             <>
@@ -142,7 +135,6 @@ const TarotReading = ({
                 chance={0.8}
                 step={2}
                 overdrive
-                onDone={() => setHeaderDone(true)}
               />
               <BlinkButton
                 onClick={() => navigate("/")}
@@ -164,7 +156,6 @@ const TarotReading = ({
                 chance={0.8}
                 step={2}
                 overdrive
-                onDone={() => setHeaderDone(true)}
               />
               {cards.every((card) => card.isRevealed && card.isCompleted) && (
                 <BlinkButton
@@ -195,7 +186,6 @@ const TarotReading = ({
                 "flex flex-col items-start justify-start",
                 "outline-2 outline-transparent outline-offset-2",
                 "hover:outline-green",
-                // "hover:scale-105"
                 card.isRevealed && "bg-green outline outline-green",
               )}
               style={{
@@ -263,7 +253,7 @@ const TarotReading = ({
                     overdrive
                   />
                   <div className="mt-auto w-full">
-                    <BlinkButton className="justify-end text-green">
+                    <BlinkButton as="div" className="justify-end text-green">
                       Unseal
                     </BlinkButton>
                   </div>
@@ -279,12 +269,7 @@ const TarotReading = ({
             these sacred insights as you traverse the liminal spaces between
             digital and spiritual realms. */}
         {cards.every((card) => card.isRevealed && card.isCompleted) && (
-          <div
-            className={cn(
-              "lg:px-12 flex flex-col justify-start lg:min-h-[20vh]",
-            )}
-          >
-            {/* LinkedIn Share Button */}
+          <div className="lg:px-12 flex flex-col justify-start lg:min-h-[20vh]">
             <button
               onClick={() => setIsShareModalOpen(true)}
               className={cn(
