@@ -2,9 +2,9 @@ import CareerFortuneLoading from "@/components/CareerFortuneLoading";
 // import { LinkedInShareModal } from "@/components/LinkedInShareModal"; // Disabled pending UX styling
 import { useTarotCards } from "@/hooks/useTarotCards";
 // import { Download } from 'lucide-react'; // For download feature - disabled pending UX
-import { VanaAppSocialShareWidget } from '@opendatalabs/vana-react';
-import { useToast } from '@/hooks/use-toast';
-import { Progress } from '@/components/ui/progress';
+import { VanaAppSocialShareWidget } from "@opendatalabs/vana-react";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 import { isTestMode } from "@/lib/test-mode";
 import { cn } from "@/lib/utils";
 import {
@@ -341,72 +341,86 @@ const TarotReading = ({
             convergence of ancient wisdom and modern consciousness. Carry
             these sacred insights as you traverse the liminal spaces between
             digital and spiritual realms. */}
-        {cards.length > 0 && cards.every((card) => card.isRevealed && card.isCompleted) && (
-          <div
-            className={cn(
-              "lg:px-12 flex flex-col justify-start lg:min-h-[20vh]",
-            )}
-          >
-            {/* Social Sharing */}
-            <div className="text-center mb-4">
-              <VanaAppSocialShareWidget
-                appName="Digital Oracle"
-                shareContent="My data just predicted my future."
-                shareEmoji="🔮"
-                funnyNote="What does your data say about the week ahead? Find out: app.vana.org #datarevolution"
-                title="SHARE YOUR ORACLE READING"
-                hideToast={true}
-                onShare={handleShare}
-                onCopySuccess={(platform, _shareText, delayMs) => {
-                  const totalTime = delayMs / 1000;
-                  let countdown = totalTime;
-                  let progress = 100;
-                  
-                  const { update, dismiss } = toast({
-                    title: "Copied to clipboard!",
-                    description: (
-                      <div>
-                        <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
-                        <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
-                      </div>
-                    ),
-                    duration: Infinity,
-                    className: "border-2 border-green bg-black text-green font-mono",
-                  });
-                  
-                  const progressTimer = setInterval(() => {
-                    progress = Math.max(0, progress - (100 / (totalTime * 10)));
-                    countdown = Math.ceil(progress / (100 / totalTime));
-                    
-                    if (progress > 0) {
-                      update({
-                        id: undefined,
-                        title: "Copied to clipboard!",
-                        description: (
-                          <div>
-                            <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
-                            <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
-                          </div>
-                        ),
-                        className: "border-2 border-green bg-black text-green font-mono",
-                      });
-                    } else {
-                      clearInterval(progressTimer);
-                      dismiss();
-                    }
-                  }, 100);
-                }}
-                classNames={{
-                  root: "text-center",
-                  title: "flex items-center justify-center gap-2 mb-6 text-sm text-green font-mono uppercase tracking-wider",
-                  buttons: "flex items-center justify-center gap-4",
-                  button: "w-14 h-14 rounded-full border-2 border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
-                }}
-                theme={{ iconSize: 20 }}
-              />
-              
-              {/* Download Option - Disabled pending UX styling */}
-              {/* <div className="mt-6 pt-6 border-t border-green/20">
+        {cards.length > 0 &&
+          cards.every((card) => card.isRevealed && card.isCompleted) && (
+            <div
+              className={cn(
+                "lg:px-12 flex flex-col justify-start lg:min-h-[20vh]",
+              )}
+            >
+              {/* Social Sharing */}
+              <div className="text-center mb-4">
+                <VanaAppSocialShareWidget
+                  shareContent="My data just predicted my future.
+What does your data say about the week ahead?
+Find out: app.vana.org #datarevolution"
+                  suffix=""
+                  hideToast={true}
+                  onShare={handleShare}
+                  onCopySuccess={(platform, _shareText, delayMs) => {
+                    const totalTime = delayMs / 1000;
+                    let countdown = totalTime;
+                    let progress = 100;
+
+                    const { update, dismiss } = toast({
+                      title: "Copied to clipboard!",
+                      description: (
+                        <div>
+                          <p className="font-mono text-sm mb-2">
+                            Opening {platform} in {countdown}...
+                          </p>
+                          <Progress
+                            value={progress}
+                            className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full"
+                          />
+                        </div>
+                      ),
+                      duration: Infinity,
+                      className:
+                        "border-2 border-green bg-black text-green font-mono",
+                    });
+
+                    const progressTimer = setInterval(() => {
+                      progress = Math.max(0, progress - 100 / (totalTime * 10));
+                      countdown = Math.ceil(progress / (100 / totalTime));
+
+                      if (progress > 0) {
+                        update({
+                          id: undefined,
+                          title: "Copied to clipboard!",
+                          description: (
+                            <div>
+                              <p className="font-mono text-sm mb-2">
+                                Opening {platform} in {countdown}...
+                              </p>
+                              <Progress
+                                value={progress}
+                                className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full"
+                              />
+                            </div>
+                          ),
+                          className:
+                            "border-2 border-green bg-black text-green font-mono",
+                        });
+                      } else {
+                        clearInterval(progressTimer);
+                        dismiss();
+                      }
+                    }, 100);
+                  }}
+                  classNames={{
+                    root: "text-center",
+                    title:
+                      "flex items-center justify-center gap-2 mb-6 text-sm text-green font-mono uppercase tracking-wider",
+                    buttons: "flex items-center justify-center gap-4",
+                    button:
+                      "w-14 h-14 rounded-full border-2 border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
+                  }}
+                  theme={{ iconSize: 20 }}
+                />
+
+                {/* Download Option - Disabled pending UX styling */}
+                {/* <div className="mt-6 pt-6 border-t border-green/20">
                 <button
                   onClick={() => setIsShareModalOpen(true)}
                   className="mx-auto flex items-center gap-2 px-4 py-2 border border-green text-green hover:bg-green hover:text-black transition-colors"
@@ -415,9 +429,9 @@ const TarotReading = ({
                   <span>Download Reading</span>
                 </button>
               </div> */}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
 
       {/* Reading Download Modal - Disabled pending UX styling */}
