@@ -1,19 +1,23 @@
-import { LinkedInShareModal } from "@/components/LinkedInShareModal";
-import { useTarotCards } from "@/lib/card-selection/use-tarot-cards";
-import { cn } from "@/lib/utils";
-import { SelectedCard } from "@/lib/card-selection/map-cards";
-import { mapCardsToComponent } from "@/lib/card-selection/map-cards";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import {
+  SelectedCard,
+  mapCardsToComponent,
+} from "@/lib/card-selection/map-cards";
 import { selectCardsBasedOnData } from "@/lib/card-selection/select-cards";
+import { useTarotCards } from "@/lib/card-selection/use-tarot-cards";
+import { createSparkles } from "@/lib/create-sparkles";
+import { LinkedInData } from "@/lib/linkedin-data.type";
 import { generateAllReadings } from "@/lib/readings/reading-generator";
+import { useCareerFortuneMessages } from "@/lib/use-career-fortune-messages";
+import { cn } from "@/lib/utils";
+import { VanaAppSocialShareWidget } from "@opendatalabs/vana-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BlinkButton } from "./BlinkButton";
+import BlockLoader from "./BlockLoader";
 import { ReadingHeader, ReadingHeaderLoading } from "./ReadingHeader";
 import ScrambleText from "./ScrambleText";
-import { createSparkles } from "@/lib/create-sparkles";
-import BlockLoader from "./BlockLoader";
-import { useCareerFortuneMessages } from "@/lib/use-career-fortune-messages";
-import { LinkedInData } from "@/lib/linkedin-data.type";
 
 interface ExtendedCard extends SelectedCard {
   isCompleted: boolean;
@@ -29,9 +33,11 @@ const TarotReading = ({
   isLoading = false,
 }: TarotReadingProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  // Disabled pending UX styling (CF: hold off deleting to see how it goes…)
+  // const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { loading: cardsLoading, error: cardsError, decks } = useTarotCards();
   const { messages, currentMessage } = useCareerFortuneMessages(
     linkedinData ?? undefined,
@@ -159,10 +165,11 @@ const TarotReading = ({
               />
               {cards.every((card) => card.isRevealed && card.isCompleted) && (
                 <BlinkButton
-                  onClick={() => setIsShareModalOpen(true)}
+                  as="a"
+                  href="#share"
                   className="text-label w-auto text-black bg-green"
                 >
-                  Share to LinkedIn
+                  Share
                 </BlinkButton>
               )}
             </>
@@ -269,9 +276,83 @@ const TarotReading = ({
             these sacred insights as you traverse the liminal spaces between
             digital and spiritual realms. */}
         {cards.every((card) => card.isRevealed && card.isCompleted) && (
-          <div className="lg:px-12 flex flex-col justify-start lg:min-h-[20vh]">
-            <button
-              onClick={() => setIsShareModalOpen(true)}
+          <div
+            id="share"
+            className="lg:px-12 flex flex-col justify-start lg:min-h-[20vh]"
+          >
+            <VanaAppSocialShareWidget
+              appName="Digital Oracle"
+              shareContent="My data just predicted my future"
+              shareEmoji="🔮"
+              funnyNote="What does your data say about the week ahead?"
+              title="Share your Oracle reading"
+              hideToast={true}
+              onShare={(platform: string) => {
+                console.log(`Shared on ${platform}`);
+              }}
+              onCopySuccess={(platform, _shareText, delayMs) => {
+                const totalTime = delayMs / 1000;
+                // const totalTime = 10 * 60; // TESTS
+                let countdown = totalTime;
+                let progress = 100;
+
+                const { update, dismiss } = toast({
+                  title: "Copied to clipboard!",
+                  description: (
+                    <div className="space-y-2 pb-2">
+                      <p className="text-label">
+                        Opening {platform} in {countdown}...
+                      </p>
+                      <Progress
+                        value={progress}
+                        className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
+                      />
+                    </div>
+                  ),
+                  duration: Infinity,
+                  className: "border border-green bg-black text-green",
+                });
+
+                const progressTimer = setInterval(() => {
+                  progress = Math.max(0, progress - 100 / (totalTime * 10));
+                  countdown = Math.ceil(progress / (100 / totalTime));
+
+                  if (progress > 0) {
+                    update({
+                      id: undefined,
+                      title: "Copied to clipboard!",
+                      description: (
+                        <div className="space-y-2 pb-2">
+                          <p className="text-label">
+                            Opening {platform} in {countdown}...
+                          </p>
+                          <Progress
+                            value={progress}
+                            className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
+                          />
+                        </div>
+                      ),
+                      className: "border border-green bg-black text-green",
+                    });
+                  } else {
+                    clearInterval(progressTimer);
+                    dismiss();
+                  }
+                }, 100);
+              }}
+              classNames={{
+                root: "border border-green p-4 flex flex-col gap-3",
+                title:
+                  "flex items-center justify-center gap-2 text-label text-green [&_svg]:hidden",
+                buttons: "flex items-center justify-center gap-4",
+                button:
+                  "size-14 border border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
+              }}
+              theme={{ iconSize: 20 }}
+            />
+
+            {/* <button
+              onClick={() => setIsShareModalOpen(true)}∏
               className={cn(
                 "text-subheading text-green",
                 "border border-green px-4 py-3",
@@ -279,13 +360,13 @@ const TarotReading = ({
               )}
             >
               Share to LinkedIn
-            </button>
+            </button> */}
           </div>
         )}
       </div>
 
       {/* LinkedIn Share Modal */}
-      <LinkedInShareModal
+      {/* <LinkedInShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         readings={cards.map((card) => card.reading || "")}
@@ -293,8 +374,8 @@ const TarotReading = ({
           name: card.title,
           image: card.image,
         }))}
-        linkedinData={linkedinData}
-      />
+        // linkedinData={linkedinData}
+      /> */}
     </>
   );
 };
