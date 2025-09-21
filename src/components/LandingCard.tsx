@@ -54,7 +54,7 @@ export const LandingCard = ({ handleAccept }: { handleAccept: () => void }) => {
         <ScrambleText
           as="div"
           className="text-label text-green"
-          text="◼ Grant access to your LinkedIn aura"
+          text="█ Grant access to your LinkedIn aura"
           delayMs={2500}
           speed={0.5}
           scramble={1}
@@ -66,7 +66,7 @@ export const LandingCard = ({ handleAccept }: { handleAccept: () => void }) => {
         <ScrambleText
           as="div"
           className="text-label text-green"
-          text="◼ Oracle channels your career essence"
+          text="█ Oracle channels your career essence"
           delayMs={2750}
           speed={0.5}
           scramble={1}
@@ -78,7 +78,7 @@ export const LandingCard = ({ handleAccept }: { handleAccept: () => void }) => {
         <ScrambleText
           as="div"
           className="text-label text-green"
-          text="◼ Witness the revelation of your professional destiny"
+          text="█ Witness the revelation of your professional destiny"
           delayMs={3000}
           speed={0.5}
           scramble={1}
