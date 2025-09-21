@@ -282,7 +282,9 @@ const TarotReading = ({
           >
             <VanaAppSocialShareWidget
               appName="Digital Oracle"
-              shareContent={`My data just predicted my future. Find out: app.vana.org #datarevolution`}
+              shareContent={`My data just predicted my future.
+What does your data say about the week ahead?
+Find out: app.vana.org #datarevolution`}
               shareEmoji="🔮"
               funnyNote="What does your data say about the week ahead?"
               title="Share your Oracle reading"
