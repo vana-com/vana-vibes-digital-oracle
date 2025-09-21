@@ -1,46 +1,53 @@
-import { useState, useEffect } from 'react';
-import TarotReading from '@/components/TarotReading';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import TarotReading from "@/components/TarotReading";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+// This allows us to show the cool loading states in TarotReading
+const MIN_LOADING_TIME = 4000;
 
 const Reading = () => {
-  const [linkedinData, setLinkedinData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check for mock data in sessionStorage first
-    const mockData = sessionStorage.getItem('tarot-linkedin-data');
-    
-    if (mockData) {
+  // Load data from sessionStorage for persistence across refreshes
+  const initialData = (() => {
+    const storedData = sessionStorage.getItem("tarot-linkedin-data");
+    if (storedData) {
       try {
-        const parsedData = JSON.parse(mockData);
+        return JSON.parse(storedData);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  })();
+
+  const [linkedinData, setLinkedinData] = useState(initialData);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const storedData = sessionStorage.getItem("tarot-linkedin-data");
+
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
         setLinkedinData(parsedData);
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), MIN_LOADING_TIME);
         return;
       } catch (error) {
-        console.error('Error parsing mock data:', error);
+        console.error("Error parsing data:", error);
       }
     }
 
-    // If no mock data, redirect back to home
-    navigate('/');
+    // Redirect if no data
+    navigate("/");
   }, [navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-midnight flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="font-amatic text-2xl text-foreground">Channeling your professional aura...</p>
-        </div>
-      </div>
-    );
+  // Avoid flicker when immediately redirecting due to missing data
+  if (!initialData) {
+    return null;
   }
 
-  return <TarotReading linkedinData={linkedinData} />;
+  return <TarotReading linkedinData={linkedinData} isLoading={isLoading} />;
 };
 
 export default Reading;

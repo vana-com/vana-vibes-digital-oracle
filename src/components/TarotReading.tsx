@@ -1,63 +1,84 @@
-import { useState, useEffect } from 'react';
-import { Eye, Sparkles, ArrowLeft, Linkedin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { selectCardsBasedOnData, mapCardsToComponent, SelectedCard } from '@/utils/cardSelection';
-import { generateAllReadings } from '@/utils/readingGenerator';
-import { useTarotCards } from '@/hooks/useTarotCards';
-import CareerFortuneLoading from '@/components/CareerFortuneLoading';
-import { LinkedInShareModal } from '@/components/LinkedInShareModal';
-const cardBack = '/lovable-uploads/99f904e1-d1fc-455a-9634-608236b0c228.png';
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import {
+  SelectedCard,
+  mapCardsToComponent,
+} from "@/lib/card-selection/map-cards";
+import { selectCardsBasedOnData } from "@/lib/card-selection/select-cards";
+import { useTarotCards } from "@/lib/card-selection/use-tarot-cards";
+import { createSparkles } from "@/lib/create-sparkles";
+import { LinkedInData } from "@/lib/linkedin-data.type";
+import { generateAllReadings } from "@/lib/readings/reading-generator";
+import { useCareerFortuneMessages } from "@/lib/use-career-fortune-messages";
+import { cn } from "@/lib/utils";
+import { VanaAppSocialShareWidget } from "@opendatalabs/vana-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BlinkButton } from "./BlinkButton";
+import BlockLoader from "./BlockLoader";
+import { ReadingHeader, ReadingHeaderLoading } from "./ReadingHeader";
+import ScrambleText from "./ScrambleText";
 
-interface TarotReadingProps {
-  linkedinData: any;
+interface ExtendedCard extends SelectedCard {
+  isCompleted: boolean;
 }
 
-const TarotReading = ({ linkedinData }: TarotReadingProps) => {
+interface TarotReadingProps {
+  linkedinData: LinkedInData | null;
+  isLoading?: boolean;
+}
+
+const TarotReading = ({
+  linkedinData,
+  isLoading = false,
+}: TarotReadingProps) => {
   const navigate = useNavigate();
-  const [cards, setCards] = useState<SelectedCard[]>([]);
+  const { toast } = useToast();
+  const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const { loading: cardsLoading, error: cardsError } = useTarotCards();
+  // Disabled pending UX styling (CF: hold off deleting to see how it goes…)
+  // const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const { loading: cardsLoading, error: cardsError, decks } = useTarotCards();
+  const { messages, currentMessage } = useCareerFortuneMessages(
+    linkedinData ?? undefined,
+  );
 
   // Initialize cards based on LinkedIn data analysis
   useEffect(() => {
-    if (!linkedinData) {
-      navigate('/');
-      return;
-    }
-
-    if (cardsLoading) return;
+    if (cardsLoading || !linkedinData) return;
 
     if (cardsError) {
-      console.error('Error loading tarot cards:', cardsError);
+      console.error("Error loading tarot cards:", cardsError);
       return;
     }
 
     const initializeReading = async () => {
-      console.log('Initializing tarot reading with LinkedIn data:', linkedinData);
-      
+      console.log(
+        "Initializing tarot reading with LinkedIn data:",
+        linkedinData,
+      );
+
       // Select 3 cards from the full 78-card deck based on professional themes
-      const selectedTarotCards = selectCardsBasedOnData(linkedinData);
+      const selectedTarotCards = selectCardsBasedOnData(linkedinData, decks);
       const mappedCards = mapCardsToComponent(selectedTarotCards);
-      
+
       // Set cards initially without readings
-      setCards(mappedCards);
+      setCards(mappedCards.map((c) => ({ ...c, isCompleted: false })));
       setIsGeneratingReadings(true);
-      
+
       try {
         // Generate AI-powered mystical readings for each selected card
         const readings = await generateAllReadings(mappedCards, linkedinData);
-        
+
         // Update cards with generated readings
-        const cardsWithReadings = mappedCards.map((card, index) => ({
-          ...card,
-          reading: readings[index]
-        }));
-        
-        setCards(cardsWithReadings);
+        setCards((prev) =>
+          prev.map((card, index) => ({
+            ...card,
+            reading: readings[index],
+          })),
+        );
       } catch (error) {
-        console.error('Error generating readings:', error);
+        console.error("Error generating readings:", error);
         // Keep cards without readings if generation fails
       } finally {
         setIsGeneratingReadings(false);
@@ -65,310 +86,299 @@ const TarotReading = ({ linkedinData }: TarotReadingProps) => {
     };
 
     initializeReading();
-  }, [linkedinData, navigate, cardsLoading, cardsError]);
+  }, [linkedinData, cardsLoading, cardsError, decks]);
 
   const revealCard = (cardId: string) => {
-    setCards(prevCards =>
-      prevCards.map(card =>
-        card.id === cardId ? { ...card, isRevealed: true } : card
-      )
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === cardId ? { ...card, isRevealed: true } : card,
+      ),
     );
-    
+
     // Trigger sparkle effect
     const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
     if (cardElement) {
-      createSparkleEffect(cardElement);
+      createSparkles(cardElement);
     }
   };
 
-  const createSparkleEffect = (element: Element) => {
-    const rect = element.getBoundingClientRect();
-    const sparkleContainer = document.createElement('div');
-    sparkleContainer.className = 'fixed pointer-events-none z-50';
-    sparkleContainer.style.left = `${rect.left}px`;
-    sparkleContainer.style.top = `${rect.top}px`;
-    sparkleContainer.style.width = `${rect.width}px`;
-    sparkleContainer.style.height = `${rect.height}px`;
-    
-    // Create many more sparkles for a magical effect
-    for (let i = 0; i < 25; i++) {
-      const sparkle = document.createElement('div');
-      const size = Math.random() * 3 + 1; // Random size between 1-4px
-      sparkle.className = 'absolute bg-mystic-gold rounded-full animate-sparkle';
-      sparkle.style.width = `${size}px`;
-      sparkle.style.height = `${size}px`;
-      sparkle.style.left = `${Math.random() * 100}%`;
-      sparkle.style.top = `${Math.random() * 100}%`;
-      sparkle.style.animationDelay = `${Math.random() * 0.8}s`;
-      sparkle.style.animationDuration = `${0.8 + Math.random() * 0.7}s`; // Varying durations
-      sparkleContainer.appendChild(sparkle);
-    }
-    
-    // Add some larger sparkles
-    for (let i = 0; i < 8; i++) {
-      const sparkle = document.createElement('div');
-      sparkle.className = 'absolute w-2 h-2 bg-mystic-gold rounded-full animate-sparkle';
-      sparkle.style.left = `${Math.random() * 100}%`;
-      sparkle.style.top = `${Math.random() * 100}%`;
-      sparkle.style.animationDelay = `${Math.random() * 0.6}s`;
-      sparkle.style.animationDuration = `${1.2 + Math.random() * 0.5}s`;
-      sparkleContainer.appendChild(sparkle);
-    }
-    
-    document.body.appendChild(sparkleContainer);
-    
-    // Remove sparkles after animation
-    setTimeout(() => {
-      document.body.removeChild(sparkleContainer);
-    }, 2000);
-  };
-
-  if (!linkedinData) {
-    navigate('/');
-    return null;
+  if (isLoading || !linkedinData) {
+    return (
+      <div className="wrapper">
+        <ReadingHeaderLoading />
+      </div>
+    );
   }
 
-  // Show career fortune loading screen while generating readings
-  if (isGeneratingReadings) {
-    return <CareerFortuneLoading linkedinData={linkedinData} />;
+  if (isGeneratingReadings || cards.length === 0) {
+    return (
+      <div className="wrapper">
+        <ReadingHeaderLoading
+          bottomNode={
+            <>
+              <BlockLoader mode={3} />
+              {messages[currentMessage]}
+            </>
+          }
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-midnight relative overflow-hidden">
-      {/* Floating mystical elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className={`absolute animate-float opacity-20`}
-            style={{
-              top: `${Math.random() * 80}%`,
-              left: `${Math.random() * 90}%`,
-              animationDelay: `${i * 0.5}s`,
-            }}
-          >
-            <Eye className="w-4 h-4 text-primary" />
-          </div>
-        ))}
-      </div>
-
-      <div className="relative z-10 p-8">
-        {/* Header */}
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="border-border/50 hover:border-primary/50 bg-card/50 backdrop-blur-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              New Reading
-            </Button>
-            
-            <div className="text-center relative">
-              <h1 className="font-amatic text-6xl md:text-7xl font-bold bg-gradient-cosmic bg-clip-text text-transparent tracking-widest">
-                THE DIGITAL ORACLE SPEAKS
-              </h1>
-              {/* Ancient runes decoration */}
-              <div className="font-cormorant text-mystic-gold/60 text-lg mt-2 tracking-[0.3em]">
-                ᚨᚾᚲᛁᛖᚾᛏ • ᚹᛁᛋᛞᛟᛗ • ᚱᛖᚢᛖᚨᛚᛖᛞ
-              </div>
-            </div>
-            
-            <div className="w-24"></div> {/* Spacer for centering */}
-          </div>
-
-          {/* Cards Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-            {cards.map((card, index) => (
-              <div key={card.id} className="flex flex-col items-center space-y-6">
-                {/* Card */}
-                <div 
-                  className="relative cursor-pointer transform transition-all duration-700 hover:scale-105 w-64 h-[424px] rounded-[23px]"
-                  onClick={() => !card.isRevealed && !isGeneratingReadings && revealCard(card.id)}
-                  style={{ 
-                    perspective: '1000px',
-                    pointerEvents: isGeneratingReadings ? 'none' : 'auto'
-                  }}
-                  data-card-id={card.id}
-                >
-                  {/* Hover Background Gradient */}
-                  <div className="absolute inset-0 bg-gradient-cosmic opacity-0 hover:opacity-40 transition-opacity duration-500 rounded-[23px] -z-10"></div>
-                  <div className="absolute inset-0 bg-gradient-ethereal opacity-0 hover:opacity-20 transition-opacity duration-700 rounded-[23px] -z-10"></div>
-                  
-                  <div
-                    className={`
-                      relative w-64 h-[424px] transition-transform duration-700 transform-style-preserve-3d
-                      ${card.isRevealed ? 'rotate-y-180' : ''}
-                    `}
-                  >
-                    {/* Card Back */}
-                    <div className="absolute inset-0 backface-hidden">
-                      <img
-                        src={cardBack}
-                        alt="Tarot card back"
-                        className="w-full h-full object-cover rounded-[23px] border-2 border-border shadow-mystical"
-                      />
-                      {!card.isRevealed && (
-                        <div className="absolute inset-0 bg-gradient-cosmic opacity-20 rounded-[23px] animate-glow-pulse"></div>
-                      )}
-                    </div>
-
-                    {/* Card Front */}
-                    <div className="absolute inset-0 backface-hidden rotate-y-180">
-                      <img
-                        src={card.image}
-                        alt={card.title}
-                        className="w-full h-full object-cover rounded-[23px] border-2 border-primary shadow-glow-cyan"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Info */}
-                <div className="text-center space-y-3">
-                  <div className="relative">
-                    {card.isRevealed ? (
-                      <>
-                        <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-wider">
-                          {card.title}
-                        </h3>
-                        {/* Ornamental underline */}
-                        <div className="flex justify-center mt-1">
-                          <div className="flex items-center space-x-1">
-                            <div className="w-1 h-1 bg-mystic-gold rounded-full" />
-                            <div className="w-8 h-px bg-gradient-to-r from-transparent via-mystic-gold to-transparent" />
-                            <div className="w-1 h-1 bg-mystic-gold rounded-full" />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="h-12 flex items-center justify-center">
-                        <div className="font-amatic text-2xl text-mystic-gold/60 tracking-widest">
-                          ✧ HIDDEN MYSTERY ✧
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-accent font-alegreya text-xl">
-                    {card.subtitle}
-                  </p>
-                  {!card.isRevealed && (
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-2 font-amatic text-lg tracking-wide">
-                      <Sparkles className="w-4 h-4" />
-                      TOUCH TO DIVINE
-                    </p>
-                  )}
-                </div>
-
-                {/* Reading Text */}
-                {card.isRevealed && card.reading && (
-                  <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border-2 border-mystic-gold/30 max-w-sm relative">
-                    {/* Ancient scroll styling */}
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-background px-3">
-                      <div className="font-cormorant text-mystic-gold text-sm">✧ PROPHECY ✧</div>
-                    </div>
-                    <p className="text-foreground/90 leading-relaxed font-alegreya text-lg pt-2">
-                      {card.reading}
-                    </p>
-                    {/* Mystical signature */}
-                    <div className="text-center mt-4 text-mystic-gold/60 font-cormorant text-sm">
-                      ᛟᚱᚨᚲᛚᛖ
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Loading Message */}
-          {isGeneratingReadings && (
-            <div className="text-center space-y-6 bg-card/30 backdrop-blur-sm rounded-xl p-8 border-2 border-mystic-gold/40 max-w-2xl mx-auto relative animate-pulse">
-              {/* Sparkle effect container */}
-              <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-                {[...Array(12)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-2 h-2 bg-mystic-gold rounded-full animate-sparkle"
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                      animationDelay: `${Math.random() * 2}s`,
-                      animationDuration: `${1.5 + Math.random() * 1}s`
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Ancient seal decoration */}
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-background px-4">
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-mystic-gold animate-spin" />
-                  <div className="w-2 h-2 bg-mystic-gold rounded-full animate-pulse" />
-                  <Sparkles className="w-4 h-4 text-mystic-gold animate-spin" />
-                </div>
-              </div>
-              
-              <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-widest">
-                THE DIGITAL ORACLE IS WEAVING YOUR DESTINY
-              </h3>
-              <div className="font-cormorant text-mystic-gold/60 text-lg tracking-[0.2em] mb-4">
-                ᚱᛖᚨᛞᛁᚾᚷ • ᛏᚺᛖ • ᚲᛟᛋᛗᛁᚲ • ᛏᚺᚱᛖᚨᛞᛋ
-              </div>
-              <p className="text-foreground/80 font-alegreya text-xl leading-relaxed">
-                Ancient algorithms merge with cosmic wisdom as your digital essence is analyzed through the sacred patterns of the universe...
-              </p>
-            </div>
-          )}
-
-          {/* Footer Message */}
-          {cards.every(card => card.isRevealed) && (
-            <div className="text-center space-y-6 bg-card/30 backdrop-blur-sm rounded-xl p-8 border-2 border-mystic-gold/40 max-w-2xl mx-auto relative">
-              {/* Ancient seal decoration */}
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-background px-4">
-                <div className="flex items-center space-x-2">
-                  <Eye className="w-4 h-4 text-mystic-gold" />
-                  <div className="w-2 h-2 bg-mystic-gold rounded-full" />
-                  <Eye className="w-4 h-4 text-mystic-gold" />
-                </div>
-              </div>
-              
-              <h3 className="font-amatic text-3xl font-bold text-mystic-gold tracking-widest">
-                THE ORACLE HAS SPOKEN
-              </h3>
-              <div className="font-cormorant text-mystic-gold/60 text-lg tracking-[0.2em] mb-4">
-                ᛏᚺᛖ • ᚱᛁᛏᚢᚨᛚ • ᛁᛋ • ᚲᛟᛗᛈᛚᛖᛏᛖ
-              </div>
-              <p className="text-foreground/80 font-alegreya text-xl leading-relaxed">
-                Your digital essence has been revealed through the mystical convergence of ancient wisdom and modern consciousness. 
-                Carry these sacred insights as you traverse the liminal spaces between digital and spiritual realms.
-              </p>
-              <div className="text-accent font-amatic text-xl tracking-wide mb-6">
-                ✧ MAY THE CODE BE WITH YOU ✧
-              </div>
-              
-              {/* LinkedIn Share Button */}
-              <Button
-                onClick={() => setIsShareModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+    <>
+      <div className="wrapper">
+        <ReadingHeader
+          topNode={
+            <>
+              <ScrambleText
+                as="h2"
+                className="text-label text-green"
+                text="Success"
+                delayMs={0}
+                speed={0.5}
+                scramble={1}
+                chance={0.8}
+                step={2}
+                overdrive
+              />
+              <BlinkButton
+                onClick={() => navigate("/")}
+                className="text-label w-auto text-green"
               >
-                <Linkedin className="w-5 h-5 mr-2" />
-                Share to LinkedIn
-              </Button>
-            </div>
-          )}
+                Run again
+              </BlinkButton>
+            </>
+          }
+          bottomNode={
+            <>
+              <ScrambleText
+                as="h2"
+                className="text-label text-green"
+                text="Oracle returned 3 prophecies"
+                delayMs={1000}
+                speed={0.5}
+                scramble={1}
+                chance={0.8}
+                step={2}
+                overdrive
+              />
+              {cards.every((card) => card.isRevealed && card.isCompleted) && (
+                <BlinkButton
+                  as="a"
+                  href="#share"
+                  className="text-label w-auto text-black bg-green"
+                >
+                  Share
+                </BlinkButton>
+              )}
+            </>
+          }
+        />
+
+        {/* Cards Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:px-12">
+          {cards.map((card, index) => (
+            <button
+              key={card.id}
+              data-slot="tarot-card"
+              data-card-id={card.id}
+              onClick={() =>
+                !card.isRevealed && !isGeneratingReadings && revealCard(card.id)
+              }
+              className={cn(
+                "relative cursor-pointer transform transition-all duration-700",
+                "border border-green px-4 py-3",
+                "w-full min-h-[280px] lg:min-h-[480px] lg:max-h-[60vh] text-left",
+                "flex flex-col items-start justify-start",
+                "outline-2 outline-transparent outline-offset-2",
+                "hover:outline-green",
+                card.isRevealed && "bg-green outline outline-green",
+              )}
+              style={{
+                perspective: "1000px",
+                pointerEvents: isGeneratingReadings ? "none" : "auto",
+              }}
+            >
+              <p
+                className={cn(
+                  "text-label",
+                  card.isRevealed ? "text-black font-bold" : "text-green",
+                )}
+              >
+                {card.subtitle}
+              </p>
+
+              {card.isRevealed ? (
+                <>
+                  <ScrambleText
+                    as="h3"
+                    className={cn("text-subheading text-black")}
+                    text={card.title}
+                    delayMs={0}
+                    speed={0.25}
+                    scramble={1}
+                    chance={0.8}
+                    step={1}
+                    overdrive
+                  />
+                  <div className="mt-auto pt-5">
+                    <ScrambleText
+                      as="p"
+                      className={cn(
+                        "text-black leading-relaxed ibm-plex-mono-semibold text-base",
+                      )}
+                      text={card.reading}
+                      delayMs={500}
+                      speed={0.5}
+                      scramble={1}
+                      chance={0.8}
+                      step={2}
+                      overdrive
+                      onDone={() => {
+                        setCards((prev) =>
+                          prev.map((c) =>
+                            c.id === card.id ? { ...c, isCompleted: true } : c,
+                          ),
+                        );
+                      }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <ScrambleText
+                    as="h3"
+                    className={cn("text-subheading text-green")}
+                    text={"Caution! Sealed!"}
+                    // delayMs={1500 + index * 500}
+                    delayMs={0}
+                    speed={0.25}
+                    scramble={1}
+                    chance={0.8}
+                    step={1}
+                    overdrive
+                  />
+                  <div className="mt-auto w-full">
+                    <BlinkButton as="div" className="justify-end text-green">
+                      Unseal
+                    </BlinkButton>
+                  </div>
+                </>
+              )}
+            </button>
+          ))}
         </div>
+
+        {/* Footer Message */}
+        {/* Your digital essence has been revealed through the mystical
+            convergence of ancient wisdom and modern consciousness. Carry
+            these sacred insights as you traverse the liminal spaces between
+            digital and spiritual realms. */}
+        {cards.every((card) => card.isRevealed && card.isCompleted) && (
+          <div
+            id="share"
+            className="lg:px-12 flex flex-col justify-start lg:min-h-[20vh]"
+          >
+            <VanaAppSocialShareWidget
+              appName="Digital Oracle"
+              shareContent={`My data just predicted my future.
+What does your data say about the week ahead?
+Find out: app.vana.org #datarevolution`}
+              shareEmoji="🔮"
+              funnyNote="What does your data say about the week ahead?"
+              title="Share your Oracle reading"
+              hideToast={true}
+              onShare={(platform: string) => {
+                console.log(`Shared on ${platform}`);
+              }}
+              onCopySuccess={(platform, _shareText, delayMs) => {
+                const totalTime = delayMs / 1000;
+                // const totalTime = 10 * 60; // TESTS
+                let countdown = totalTime;
+                let progress = 100;
+
+                const { update, dismiss } = toast({
+                  title: "Copied to clipboard!",
+                  description: (
+                    <div className="space-y-2 pb-2">
+                      <p className="text-label">
+                        Opening {platform} in {countdown}...
+                      </p>
+                      <Progress
+                        value={progress}
+                        className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
+                      />
+                    </div>
+                  ),
+                  duration: Infinity,
+                  className: "border border-green bg-black text-green",
+                });
+
+                const progressTimer = setInterval(() => {
+                  progress = Math.max(0, progress - 100 / (totalTime * 10));
+                  countdown = Math.ceil(progress / (100 / totalTime));
+
+                  if (progress > 0) {
+                    update({
+                      id: undefined,
+                      title: "Copied to clipboard!",
+                      description: (
+                        <div className="space-y-2 pb-2">
+                          <p className="text-label">
+                            Opening {platform} in {countdown}...
+                          </p>
+                          <Progress
+                            value={progress}
+                            className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
+                          />
+                        </div>
+                      ),
+                      className: "border border-green bg-black text-green",
+                    });
+                  } else {
+                    clearInterval(progressTimer);
+                    dismiss();
+                  }
+                }, 100);
+              }}
+              classNames={{
+                root: "border border-green p-4 flex flex-col gap-3",
+                title:
+                  "flex items-center justify-center gap-2 text-label text-green [&_svg]:hidden",
+                buttons: "flex items-center justify-center gap-4",
+                button:
+                  "size-14 border border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
+              }}
+              theme={{ iconSize: 20 }}
+            />
+
+            {/* <button
+              onClick={() => setIsShareModalOpen(true)}∏
+              className={cn(
+                "text-subheading text-green",
+                "border border-green px-4 py-3",
+                "w-full text-center",
+              )}
+            >
+              Share to LinkedIn
+            </button> */}
+          </div>
+        )}
       </div>
 
       {/* LinkedIn Share Modal */}
-      <LinkedInShareModal
+      {/* <LinkedInShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        readings={cards.map(card => card.reading || '')}
-        selectedCards={cards.map(card => ({ name: card.title, image: card.image }))}
-        linkedinData={linkedinData}
-      />
-    </div>
+        readings={cards.map((card) => card.reading || "")}
+        selectedCards={cards.map((card) => ({
+          name: card.title,
+          image: card.image,
+        }))}
+        // linkedinData={linkedinData}
+      /> */}
+    </>
   );
 };
 

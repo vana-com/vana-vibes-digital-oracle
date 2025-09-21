@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface VanaWidgetProps {
   appId: string;
-  onResult: (data: string) => void;
-  onError: (error: string) => void;
+  onResult: (data: unknown) => void;
+  onError: (error: unknown) => void;
   onAuth: (walletAddress: string) => void;
   iframeOrigin?: string;
   schemaId?: number;
   prompt?: string;
+  className?: string;
+  loadingNode?: ReactNode;
 }
 
 const VanaWidget = ({
@@ -20,9 +23,17 @@ const VanaWidget = ({
   iframeOrigin = "https://app.vana.com",
   schemaId,
   prompt,
+  className,
+  loadingNode,
 }: VanaWidgetProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrc = `${iframeOrigin}/embed/upload`;
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Reset loading when iframe source changes
+    setIsLoading(true);
+  }, [iframeSrc]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -34,6 +45,7 @@ const VanaWidget = ({
       switch (event.data.type) {
         case "ready":
           console.log("[DataApp] Widget ready, sending config");
+          setIsLoading(false);
 
           // Send configuration to iframe
           if (iframeRef.current?.contentWindow) {
@@ -45,21 +57,21 @@ const VanaWidget = ({
                 aiPrompt: prompt,
                 embeddingOrigin: window.location.origin,
               },
-              iframeOrigin
+              iframeOrigin,
             );
           }
           break;
 
         case "relay":
           console.log(
-            "[DataApp] Received a relay message, sending to UploadWidget"
+            "[DataApp] Received a relay message, sending to UploadWidget",
           );
           if (iframeRef.current?.contentWindow) {
             iframeRef.current.contentWindow.postMessage(
               {
                 ...event.data?.data,
               },
-              iframeOrigin
+              iframeOrigin,
             );
           }
           break;
@@ -76,13 +88,15 @@ const VanaWidget = ({
           if (event.data.result) {
             onResult(event.data.result);
           }
+          setIsLoading(false);
           break;
 
         case "error":
           console.error("[DataApp] Error event received", event.data);
           onError(
-            event.data.message || event.data.error || "An error occurred"
+            event.data.message || event.data.error || "An error occurred",
           );
+          setIsLoading(false);
           break;
 
         case "resize":
@@ -103,13 +117,17 @@ const VanaWidget = ({
   }, [onResult, onError, onAuth, prompt, appId, schemaId, iframeOrigin]);
 
   return (
-    <div className="w-full relative">
+    <div className={cn("w-full relative", className)}>
       <iframe
         ref={iframeRef}
         src={iframeSrc}
-        className="w-full border-none"
+        title="Vana Upload Widget"
+        className="w-full h-full border-none"
+        loading="lazy"
         sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
+        onLoad={() => setIsLoading(false)}
       />
+      {isLoading ? (loadingNode ?? null) : null}
     </div>
   );
 };
