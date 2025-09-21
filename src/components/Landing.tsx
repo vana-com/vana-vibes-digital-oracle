@@ -49,7 +49,8 @@ Carefully examine the provided LinkedIn data and extract the following fields:
 - headline
 - summary
 - positions (including title, company, startDate, endDate, current status, description)
-- skills (if explicit list of skills is empty or missing: extract a typical number of LinkedIn skills for user profiles with similar data, erring on the side of far too few - including even one or two extra but including too many is NOT okay, based on experience)
+  IMPORTANT: All dates MUST be in YYYY-MM format (e.g., "2024-11" for November 2024)
+- skills (important to include all skills)
 - education (including school, degree, graduationYear)
 
 STEP 2: OUTPUT VALID JSON

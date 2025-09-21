@@ -304,6 +304,53 @@ function getFutureInsight(completeness: string, skillCount: number, score: numbe
   }
 }
 
+// Parse various date formats to { year, month }
+function parseDate(dateStr: string): { year: number; month: number } | null {
+  if (!dateStr) return null;
+  
+  // Try YYYY-MM format first (preferred)
+  if (/^\d{4}-\d{1,2}$/.test(dateStr)) {
+    const [year, month] = dateStr.split('-').map(Number);
+    return { year, month };
+  }
+  
+  // Try "Month YYYY" format (e.g., "Nov 2024", "November 2024")
+  const monthYearMatch = dateStr.match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (monthYearMatch) {
+    const monthNames = {
+      'jan': 1, 'january': 1,
+      'feb': 2, 'february': 2,
+      'mar': 3, 'march': 3,
+      'apr': 4, 'april': 4,
+      'may': 5,
+      'jun': 6, 'june': 6,
+      'jul': 7, 'july': 7,
+      'aug': 8, 'august': 8,
+      'sep': 9, 'september': 9,
+      'oct': 10, 'october': 10,
+      'nov': 11, 'november': 11,
+      'dec': 12, 'december': 12
+    };
+    const monthStr = monthYearMatch[1].toLowerCase();
+    const year = parseInt(monthYearMatch[2]);
+    
+    // Check both abbreviated and full month names
+    for (const [key, value] of Object.entries(monthNames)) {
+      if (monthStr.startsWith(key)) {
+        return { year, month: value };
+      }
+    }
+  }
+  
+  // Try just year (assume January)
+  if (/^\d{4}$/.test(dateStr)) {
+    return { year: parseInt(dateStr), month: 1 };
+  }
+  
+  console.warn(`Could not parse date: ${dateStr}`);
+  return null;
+}
+
 // Calculate average tenure for LinkedIn positions
 function calculateAverageTenure(positions: any[]): number {
   if (!positions.length) return 0;
@@ -312,25 +359,30 @@ function calculateAverageTenure(positions: any[]): number {
   let validPositions = 0;
   
   positions.forEach(position => {
-    if (position.startDate) {
-      const startYear = parseInt(position.startDate.split('-')[0]);
-      const startMonth = parseInt(position.startDate.split('-')[1] || '1');
-      
-      let endYear, endMonth;
-      if (position.current || !position.endDate) {
-        const now = new Date();
-        endYear = now.getFullYear();
-        endMonth = now.getMonth() + 1;
-      } else {
-        endYear = parseInt(position.endDate.split('-')[0]);
-        endMonth = parseInt(position.endDate.split('-')[1] || '12');
+    const startDate = parseDate(position.startDate);
+    if (!startDate) {
+      console.warn(`Invalid start date for position: ${position.title} at ${position.company}`);
+      return;
+    }
+    
+    let endDate;
+    if (position.current || !position.endDate) {
+      const now = new Date();
+      endDate = { year: now.getFullYear(), month: now.getMonth() + 1 };
+    } else {
+      endDate = parseDate(position.endDate);
+      if (!endDate) {
+        console.warn(`Invalid end date for position: ${position.title} at ${position.company}`);
+        return;
       }
-      
-      const months = (endYear - startYear) * 12 + (endMonth - startMonth);
-      if (months > 0) {
-        totalMonths += months;
-        validPositions++;
-      }
+    }
+    
+    const months = (endDate.year - startDate.year) * 12 + (endDate.month - startDate.month);
+    if (months >= 0) {
+      totalMonths += months;
+      validPositions++;
+    } else {
+      console.warn(`Negative tenure for position: ${position.title} at ${position.company}`);
     }
   });
   
