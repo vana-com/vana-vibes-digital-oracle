@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
-import { Linkedin, Copy, Share, Download, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { createShareableImage, downloadImage, CardImage } from '@/utils/imageComposer';
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Linkedin, Copy, Share, Download, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  createShareableImage,
+  downloadImage,
+  CardImage,
+} from "@/lib/imageComposer";
 
 interface LinkedInShareModalProps {
   isOpen: boolean;
@@ -20,12 +29,14 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
   onClose,
   readings,
   selectedCards,
-  linkedinData
+  linkedinData,
 }) => {
   const { toast } = useToast();
-  const [postText, setPostText] = useState(() => generateLinkedInPost(readings, selectedCards, linkedinData));
+  const [postText, setPostText] = useState(() =>
+    generateLinkedInPost(readings, selectedCards, linkedinData),
+  );
   const [isSharing, setIsSharing] = useState(false);
-  const [shareableImage, setShareableImage] = useState<string>('');
+  const [shareableImage, setShareableImage] = useState<string>("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   // Generate shareable image when modal opens
@@ -38,15 +49,15 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
   const generateShareableImage = async () => {
     try {
       setIsGeneratingImage(true);
-      const cardImages: CardImage[] = selectedCards.map(card => ({
+      const cardImages: CardImage[] = selectedCards.map((card) => ({
         name: card.name,
-        image: card.image
+        image: card.image,
       }));
-      
+
       const imageDataUrl = await createShareableImage(cardImages);
       setShareableImage(imageDataUrl);
     } catch (error) {
-      console.error('Error generating shareable image:', error);
+      console.error("Error generating shareable image:", error);
       toast({
         title: "Image generation failed",
         description: "Using fallback display",
@@ -59,7 +70,7 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
 
   const handleDownloadImage = () => {
     if (shareableImage) {
-      downloadImage(shareableImage, 'career-fortune-reading.png');
+      downloadImage(shareableImage, "career-fortune-reading.png");
       toast({
         title: "Image downloaded!",
         description: "Your shareable image has been saved",
@@ -87,15 +98,15 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
     setIsSharing(true);
     const encodedText = encodeURIComponent(postText);
     const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&title=${encodedText}`;
-    
+
     // Open LinkedIn share in new window
-    window.open(shareUrl, '_blank', 'width=600,height=500');
-    
+    window.open(shareUrl, "_blank", "width=600,height=500");
+
     toast({
       title: "Opening LinkedIn...",
       description: "Share window opened in new tab",
     });
-    
+
     setTimeout(() => setIsSharing(false), 2000);
   };
 
@@ -115,16 +126,22 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
             {isGeneratingImage ? (
               <div className="flex flex-col items-center justify-center py-12 bg-muted rounded-lg">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <p className="text-sm text-muted-foreground">Creating your shareable image...</p>
+                <p className="text-sm text-muted-foreground">
+                  Creating your shareable image...
+                </p>
               </div>
             ) : shareableImage ? (
               <div className="space-y-4">
-                <img 
-                  src={shareableImage} 
-                  alt="Shareable tarot reading" 
+                <img
+                  src={shareableImage}
+                  alt="Shareable tarot reading"
                   className="max-w-full h-auto rounded-lg border-2 border-primary/20 shadow-lg mx-auto"
                 />
-                <Button variant="outline" size="sm" onClick={handleDownloadImage}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadImage}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Download Image
                 </Button>
@@ -138,7 +155,11 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
                         {card.name}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {index === 0 ? 'Past' : index === 1 ? 'Present' : 'Future'}
+                        {index === 0
+                          ? "Past"
+                          : index === 1
+                            ? "Present"
+                            : "Future"}
                       </p>
                     </CardContent>
                   </Card>
@@ -166,7 +187,7 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
               <Copy className="h-4 w-4 mr-2" />
               Copy Text
             </Button>
-            <Button 
+            <Button
               onClick={handleShareToLinkedIn}
               disabled={isSharing}
               className="bg-blue-600 hover:bg-blue-700"
@@ -190,10 +211,14 @@ export const LinkedInShareModal: React.FC<LinkedInShareModalProps> = ({
   );
 };
 
-function generateLinkedInPost(readings: string[], selectedCards: any[], linkedinData: any): string {
-  const name = linkedinData?.firstName || 'Professional';
-  const cardNames = selectedCards.map(card => card.name);
-  
+function generateLinkedInPost(
+  readings: string[],
+  selectedCards: any[],
+  linkedinData: any,
+): string {
+  const name = linkedinData?.firstName || "Professional";
+  const cardNames = selectedCards.map((card) => card.name);
+
   const post = `🔮 Just got my LinkedIn Career Fortune reading and the cosmic algorithm is speaking! 
 
 📈 PAST: ${cardNames[0]}

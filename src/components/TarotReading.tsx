@@ -1,19 +1,17 @@
 import CareerFortuneLoading from "@/components/CareerFortuneLoading";
 import { LinkedInShareModal } from "@/components/LinkedInShareModal";
-import { useTarotCards } from "@/hooks/useTarotCards";
-import { isTestMode } from "@/lib/test-mode";
+import { useTarotCards } from "@/lib/card-selection/use-tarot-cards";
 import { cn } from "@/lib/utils";
-import {
-  SelectedCard,
-  mapCardsToComponent,
-  selectCardsBasedOnData,
-} from "@/utils/cardSelection";
-import { generateAllReadings } from "@/utils/readingGenerator";
+import { SelectedCard } from "@/lib/card-selection/map-cards";
+import { mapCardsToComponent } from "@/lib/card-selection/map-cards";
+import { selectCardsBasedOnData } from "@/lib/card-selection/select-cards";
+import { generateAllReadings } from "@/lib/readings/reading-generator";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BlinkButton } from "./BlinkButton";
 import { ReadingHeader } from "./ReadingHeader";
 import ScrambleText from "./ScrambleText";
+import { createSparkles } from "@/lib/create-sparkles";
 
 interface ExtendedCard extends SelectedCard {
   isCompleted: boolean;
@@ -40,18 +38,16 @@ const TarotReading = ({
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [completedReadings, setCompletedReadings] = useState(0);
-  const { loading: cardsLoading, error: cardsError } = useTarotCards();
+  const { loading: cardsLoading, error: cardsError, decks } = useTarotCards();
 
   // Initialize cards based on LinkedIn data analysis
   useEffect(() => {
     if (!linkedinData) {
-      navigate("/");
+      // Parent (Reading.tsx) owns redirect; do nothing here
       return;
     }
 
-    const inTest = isTestMode();
-    if (cardsLoading && !inTest) return;
+    if (cardsLoading) return;
 
     if (cardsError) {
       console.error("Error loading tarot cards:", cardsError);
@@ -65,20 +61,12 @@ const TarotReading = ({
       );
 
       // Select 3 cards from the full 78-card deck based on professional themes
-      const selectedTarotCards = selectCardsBasedOnData(linkedinData);
+      const selectedTarotCards = selectCardsBasedOnData(linkedinData, decks);
       const mappedCards = mapCardsToComponent(selectedTarotCards);
 
       // Set cards initially without readings
-      setCards(
-        inTest
-          ? mappedCards.map((c) => ({
-              ...c,
-              isRevealed: true,
-              isCompleted: true,
-            }))
-          : mappedCards.map((c) => ({ ...c, isCompleted: false })),
-      );
-      setIsGeneratingReadings(!inTest);
+      setCards(mappedCards.map((c) => ({ ...c, isCompleted: false })));
+      setIsGeneratingReadings(true);
 
       try {
         // Generate AI-powered mystical readings for each selected card
@@ -100,7 +88,7 @@ const TarotReading = ({
     };
 
     initializeReading();
-  }, [linkedinData, navigate, cardsLoading, cardsError]);
+  }, [linkedinData, navigate, cardsLoading, cardsError, decks]);
 
   const revealCard = (cardId: string) => {
     setCards((prevCards) =>
@@ -112,58 +100,12 @@ const TarotReading = ({
     // Trigger sparkle effect
     const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
     if (cardElement) {
-      createSparkleEffect(cardElement);
+      createSparkles(cardElement);
     }
-  };
-
-  const createSparkleEffect = (element: Element) => {
-    const rect = element.getBoundingClientRect();
-    const sparkleContainer = document.createElement("div");
-    sparkleContainer.className = "fixed pointer-events-none z-50";
-    sparkleContainer.style.left = `${rect.left}px`;
-    sparkleContainer.style.top = `${rect.top}px`;
-    sparkleContainer.style.width = `${rect.width}px`;
-    sparkleContainer.style.height = `${rect.height}px`;
-
-    // Create many more sparkles for a magical effect
-    for (let i = 0; i < 25; i++) {
-      const sparkle = document.createElement("div");
-      const size = Math.random() * 3 + 1; // Random size between 1-4px
-      sparkle.className = "absolute bg-black rounded-full animate-sparkle";
-      sparkle.style.width = `${size}px`;
-      sparkle.style.height = `${size}px`;
-      sparkle.style.left = `${Math.random() * 100}%`;
-      sparkle.style.top = `${Math.random() * 100}%`;
-      sparkle.style.animationDelay = `${Math.random() * 0.8}s`;
-      sparkle.style.animationDuration = `${0.8 + Math.random() * 0.7}s`; // Varying durations
-      sparkleContainer.appendChild(sparkle);
-    }
-
-    // Add some larger sparkles
-    for (let i = 0; i < 8; i++) {
-      const sparkle = document.createElement("div");
-      sparkle.className =
-        "absolute w-2 h-2 bg-black rounded-full animate-sparkle";
-      sparkle.style.left = `${Math.random() * 100}%`;
-      sparkle.style.top = `${Math.random() * 100}%`;
-      sparkle.style.animationDelay = `${Math.random() * 0.6}s`;
-      sparkle.style.animationDuration = `${1.2 + Math.random() * 0.5}s`;
-      sparkleContainer.appendChild(sparkle);
-    }
-
-    document.body.appendChild(sparkleContainer);
-
-    // Remove sparkles after animation
-    setTimeout(() => {
-      document.body.removeChild(sparkleContainer);
-    }, 2000);
   };
 
   // Reveal CTA after both scrambles complete
   const [headerDone, setHeaderDone] = useState(false);
-  const [titleDone, setTitleDone] = useState(false);
-  const [subtitleDone, setSubtitleDone] = useState(false);
-  const bothDone = titleDone && subtitleDone;
 
   if (!linkedinData) {
     console.log("TarotReading: No linkedinData, isLoading:", isLoading);
@@ -176,7 +118,7 @@ const TarotReading = ({
   console.log("TarotReading: Has linkedinData:", !!linkedinData);
 
   // Show career fortune loading screen while generating readings (not in test)
-  if (isGeneratingReadings && !isTestMode()) {
+  if (isGeneratingReadings) {
     return (
       <div className={cn(wrapperStyle)}>
         <CareerFortuneLoading linkedinData={linkedinData} />
@@ -282,7 +224,6 @@ const TarotReading = ({
                     chance={0.8}
                     step={1}
                     overdrive
-                    onDone={() => setTitleDone(true)}
                   />
                   <div className="mt-auto pt-5">
                     <ScrambleText
@@ -298,7 +239,6 @@ const TarotReading = ({
                       step={2}
                       overdrive
                       onDone={() => {
-                        setSubtitleDone(true);
                         setCards((prev) =>
                           prev.map((c) =>
                             c.id === card.id ? { ...c, isCompleted: true } : c,
@@ -321,7 +261,6 @@ const TarotReading = ({
                     chance={0.8}
                     step={1}
                     overdrive
-                    onDone={() => setSubtitleDone(true)}
                   />
                   <div className="mt-auto w-full">
                     <BlinkButton className="justify-end text-green">
@@ -333,9 +272,6 @@ const TarotReading = ({
             </button>
           ))}
         </div>
-
-        {/* Loading Message */}
-        {/* {isGeneratingReadings && <GeneratingReadings />} */}
 
         {/* Footer Message */}
         {/* Your digital essence has been revealed through the mystical

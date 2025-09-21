@@ -1,38 +1,20 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  TarotCard,
-  majorArcana,
-  minorArcana,
-  allTarotCards,
-} from "@/data/tarotCards";
-import { isTestMode, getTestTarotCards } from "@/lib/test-mode";
+import { TarotCard, TarotDecks } from "./tarot-cards.type";
 
-export const useTarotCards = () => {
+export function useTarotCards() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [decks, setDecks] = useState<TarotDecks>({
+    majorArcana: [],
+    minorArcana: [],
+    allTarotCards: [],
+  });
 
   useEffect(() => {
     const fetchTarotCards = async () => {
       try {
         setLoading(true);
-
-        if (isTestMode()) {
-          const testCards: TarotCard[] = getTestTarotCards();
-          majorArcana.length = 0;
-          minorArcana.length = 0;
-          allTarotCards.length = 0;
-          testCards.forEach((card) => {
-            if (card.arcana === "major") {
-              majorArcana.push(card);
-            } else {
-              minorArcana.push(card);
-            }
-            allTarotCards.push(card);
-          });
-          setLoading(false);
-          return;
-        }
         const { data, error } = await supabase
           .from("tarot_cards")
           .select("*")
@@ -41,7 +23,6 @@ export const useTarotCards = () => {
         if (error) throw error;
 
         if (data) {
-          // Transform database format to app format
           const transformedCards: TarotCard[] = data.map((card) => ({
             id: card.id,
             name: card.name,
@@ -59,18 +40,17 @@ export const useTarotCards = () => {
             image_url: card.image_url,
           }));
 
-          // Update the exported arrays
-          majorArcana.length = 0;
-          minorArcana.length = 0;
-          allTarotCards.length = 0;
+          const nextMajor = transformedCards.filter(
+            (c) => c.arcana === "major",
+          );
+          const nextMinor = transformedCards.filter(
+            (c) => c.arcana === "minor",
+          );
 
-          transformedCards.forEach((card) => {
-            if (card.arcana === "major") {
-              majorArcana.push(card);
-            } else {
-              minorArcana.push(card);
-            }
-            allTarotCards.push(card);
+          setDecks({
+            majorArcana: nextMajor,
+            minorArcana: nextMinor,
+            allTarotCards: transformedCards,
           });
         }
       } catch (err) {
@@ -86,5 +66,5 @@ export const useTarotCards = () => {
     fetchTarotCards();
   }, []);
 
-  return { loading, error };
-};
+  return { loading, error, decks };
+}

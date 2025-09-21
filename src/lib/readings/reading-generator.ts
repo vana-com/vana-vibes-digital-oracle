@@ -1,22 +1,12 @@
-import { TarotCard } from "@/data/tarotCards";
-import { isTestMode } from "@/lib/test-mode";
-import { SelectedCard } from "@/utils/cardSelection";
 import { supabase } from "@/integrations/supabase/client";
+import { TarotCard } from "@/lib/card-selection/tarot-cards.type";
+import { SelectedCard } from "@/lib/card-selection/map-cards";
 
-export const generateMysticalReading = async (
+export async function generateMysticalReading(
   card: TarotCard,
   position: "past" | "present" | "future",
   linkedinData: any,
-): Promise<string> => {
-  // In test mode, avoid network calls and return quick deterministic text
-  if (isTestMode()) {
-    const canned: Record<string, string> = {
-      past: "Test reading: measured balance and clean profile energy.",
-      present: "Test reading: abundant network potential—optimize to bloom.",
-      future: "Test reading: manifest your next move with focused intent.",
-    };
-    return canned[position] ?? "Test reading.";
-  }
+): Promise<string> {
   try {
     console.log(
       "Generating LinkedIn-based reading for card:",
@@ -51,13 +41,12 @@ export const generateMysticalReading = async (
     console.error("Error generating mystical reading:", error);
     return generateFallbackReading(card, position);
   }
-};
+}
 
-// Fallback to template-based reading if AI generation fails
-const generateFallbackReading = (
+function generateFallbackReading(
   card: TarotCard,
   position: "past" | "present" | "future",
-): string => {
+): string {
   const phrases = {
     past: [
       "The cosmic threads of your digital past reveal",
@@ -82,12 +71,12 @@ const generateFallbackReading = (
   const keywordString = card.keywords.join(", ");
 
   return `${randomPhrase} the power of ${card.name.toLowerCase()}. The mystical energies suggest that ${keywordString} weave through your digital essence, revealing how ${cardMeaning} manifests in your consciousness. Trust in the synchronicity that brought this sacred symbol to light.`;
-};
+}
 
-export const generateAllReadings = async (
+export async function generateAllReadings(
   selectedCards: SelectedCard[],
   linkedinData: any,
-): Promise<string[]> => {
+): Promise<string[]> {
   const positions: ("past" | "present" | "future")[] = [
     "past",
     "present",
@@ -112,4 +101,4 @@ export const generateAllReadings = async (
 
   console.log("Generated LinkedIn readings:", readings);
   return readings;
-};
+}
