@@ -1,11 +1,10 @@
 import CareerFortuneLoading from "@/components/CareerFortuneLoading";
 // import { LinkedInShareModal } from "@/components/LinkedInShareModal"; // Disabled pending UX styling
 import { useTarotCards } from "@/hooks/useTarotCards";
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
-import { Share2 } from 'lucide-react';
 // import { Download } from 'lucide-react'; // For download feature - disabled pending UX
-import * as LucideIcons from 'lucide-react';
+import { VanaAppSocialShareWidget } from '@opendatalabs/vana-react';
+import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 import { isTestMode } from "@/lib/test-mode";
 import { cn } from "@/lib/utils";
 import {
@@ -46,7 +45,6 @@ const TarotReading = ({
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
   // const [isShareModalOpen, setIsShareModalOpen] = useState(false); // For download modal - disabled pending UX
-  const [completedReadings, setCompletedReadings] = useState(0);
   const { loading: cardsLoading, error: cardsError } = useTarotCards();
 
   // Initialize cards based on LinkedIn data analysis
@@ -108,54 +106,8 @@ const TarotReading = ({
     initializeReading();
   }, [linkedinData, navigate, cardsLoading, cardsError]);
 
-  const copyAndOpenWithCountdown = (text: string, platform: string, url: string) => {
-    // Copy to clipboard
-    navigator.clipboard.writeText(text);
-    
-    // Create a countdown toast with progress bar
-    const totalTime = 3;
-    let countdown = totalTime;
-    let progress = 100;
-    
-    const { update, dismiss } = toast({
-      title: "Copied to clipboard!",
-      description: (
-        <div className="space-y-2">
-          <p>Opening {platform} in {countdown}... Paste your message there.</p>
-          <Progress value={progress} className="h-1 bg-green/20 [&>div]:bg-green" />
-        </div>
-      ),
-      duration: Infinity, // We'll manually dismiss it
-      className: "border-green bg-black text-green [&>div]:text-green",
-    });
-    
-    // Update progress every 100ms for smooth animation
-    const progressTimer = setInterval(() => {
-      progress = Math.max(0, progress - (100 / (totalTime * 10))); // Decrease by 10% per 100ms
-      const currentCountdown = Math.ceil(progress / (100 / totalTime));
-      
-      if (currentCountdown !== countdown && currentCountdown > 0) {
-        countdown = currentCountdown;
-      }
-      
-      if (progress > 0) {
-        update({
-          id: undefined,
-          title: "Copied to clipboard!",
-          description: (
-            <div className="space-y-2">
-              <p>Opening {platform} in {countdown}... Paste your message there.</p>
-              <Progress value={progress} className="h-1 bg-green/20 [&>div]:bg-green" />
-            </div>
-          ),
-          className: "border-green bg-black text-green [&>div]:text-green",
-        });
-      } else {
-        clearInterval(progressTimer);
-        dismiss();
-        window.open(url, '_blank');
-      }
-    }, 100);
+  const handleShare = (platform: string) => {
+    console.log(`Shared on ${platform}`);
   };
 
   const revealCard = (cardId: string) => {
@@ -219,7 +171,6 @@ const TarotReading = ({
   const [headerDone, setHeaderDone] = useState(false);
   const [titleDone, setTitleDone] = useState(false);
   const [subtitleDone, setSubtitleDone] = useState(false);
-  const bothDone = titleDone && subtitleDone;
 
   if (!linkedinData) {
     console.log("TarotReading: No linkedinData, isLoading:", isLoading);
@@ -286,7 +237,7 @@ const TarotReading = ({
 
         {/* Cards Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:px-12">
-          {cards.map((card, index) => (
+          {cards.map((card) => (
             <button
               key={card.id}
               data-slot="tarot-card"
@@ -398,56 +349,61 @@ const TarotReading = ({
           >
             {/* Social Sharing */}
             <div className="text-center mb-4">
-              <div className="flex items-center justify-center gap-1 mb-6">
-                <Share2 className="w-4 h-4 text-green" />
-                <span className="text-sm font-medium text-green">Share your oracle reading</span>
-              </div>
-              
-              <div className="flex items-center justify-center gap-4">
-                <button
-                  onClick={() => {
-                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: app.vana.com\n#DATAREVOLUTION`;
-                    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-                    copyAndOpenWithCountdown(text, "Twitter", url);
-                  }}
-                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
-                >
-                  <LucideIcons.Twitter className="w-5 h-5 text-green" />
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: https://app.vana.com\n#DATAREVOLUTION`;
-                    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin)}`;
-                    copyAndOpenWithCountdown(text, "Facebook", url);
-                  }}
-                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
-                >
-                  <LucideIcons.Facebook className="w-5 h-5 text-green" />
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: app.vana.com\n#DATAREVOLUTION`;
-                    const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
-                    copyAndOpenWithCountdown(text, "LinkedIn", url);
-                  }}
-                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
-                >
-                  <LucideIcons.Linkedin className="w-5 h-5 text-green" />
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const text = `My data just predicted my future.\n\nWhat does your data say about the week ahead?\n\nFind out: https://app.vana.com\n#DATAREVOLUTION`;
-                    const url = "https://www.instagram.com/";
-                    copyAndOpenWithCountdown(text, "Instagram", url);
-                  }}
-                  className="rounded-full bg-transparent hover:bg-green/10 border border-green p-3"
-                >
-                  <LucideIcons.Instagram className="w-5 h-5 text-green" />
-                </button>
-              </div>
+              <VanaAppSocialShareWidget
+                appName="Digital Oracle"
+                shareContent="My data just predicted my future"
+                shareEmoji="🔮"
+                funnyNote="What does your data say about the week ahead?"
+                title="SHARE YOUR ORACLE READING"
+                hideToast={true}
+                onShare={handleShare}
+                onCopySuccess={(platform, _shareText, delayMs) => {
+                  const totalTime = delayMs / 1000;
+                  let countdown = totalTime;
+                  let progress = 100;
+                  
+                  const { update, dismiss } = toast({
+                    title: "Copied to clipboard!",
+                    description: (
+                      <div>
+                        <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
+                        <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
+                      </div>
+                    ),
+                    duration: Infinity,
+                    className: "border-2 border-green bg-black text-green font-mono",
+                  });
+                  
+                  const progressTimer = setInterval(() => {
+                    progress = Math.max(0, progress - (100 / (totalTime * 10)));
+                    countdown = Math.ceil(progress / (100 / totalTime));
+                    
+                    if (progress > 0) {
+                      update({
+                        id: undefined,
+                        title: "Copied to clipboard!",
+                        description: (
+                          <div>
+                            <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
+                            <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
+                          </div>
+                        ),
+                        className: "border-2 border-green bg-black text-green font-mono",
+                      });
+                    } else {
+                      clearInterval(progressTimer);
+                      dismiss();
+                    }
+                  }, 100);
+                }}
+                classNames={{
+                  root: "text-center",
+                  title: "flex items-center justify-center gap-2 mb-6 text-sm text-green font-mono uppercase tracking-wider",
+                  buttons: "flex items-center justify-center gap-4",
+                  button: "w-14 h-14 rounded-full border-2 border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
+                }}
+                theme={{ iconSize: 20 }}
+              />
               
               {/* Download Option - Disabled pending UX styling */}
               {/* <div className="mt-6 pt-6 border-t border-green/20">
