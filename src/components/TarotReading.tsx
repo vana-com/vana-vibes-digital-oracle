@@ -281,66 +281,21 @@ const TarotReading = ({
             className="lg:px-12 flex flex-col justify-start lg:min-h-[20vh]"
           >
             <VanaAppSocialShareWidget
-              appName="Digital Oracle"
               shareContent={`My data just predicted my future.
 What does your data say about the week ahead?
 Find out: app.vana.org #datarevolution`}
-              shareEmoji="🔮"
-              funnyNote="What does your data say about the week ahead?"
               title="Share your Oracle reading"
               hideToast={true}
               onShare={(platform: string) => {
                 console.log(`Shared on ${platform}`);
               }}
-              onCopySuccess={(platform, _shareText, delayMs) => {
-                const totalTime = delayMs / 1000;
-                // const totalTime = 10 * 60; // TESTS
-                let countdown = totalTime;
-                let progress = 100;
-
-                const { update, dismiss } = toast({
+              onCopySuccess={(platform, _shareText) => {
+                toast({
                   title: "Copied to clipboard!",
-                  description: (
-                    <div className="space-y-2 pb-2">
-                      <p className="text-label">
-                        Opening {platform} in {countdown}...
-                      </p>
-                      <Progress
-                        value={progress}
-                        className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
-                      />
-                    </div>
-                  ),
-                  duration: Infinity,
+                  description: `Now go to ${platform} and paste your message to share.`,
+                  duration: 4000,
                   className: "border border-green bg-black text-green",
                 });
-
-                const progressTimer = setInterval(() => {
-                  progress = Math.max(0, progress - 100 / (totalTime * 10));
-                  countdown = Math.ceil(progress / (100 / totalTime));
-
-                  if (progress > 0) {
-                    update({
-                      id: undefined,
-                      title: "Copied to clipboard!",
-                      description: (
-                        <div className="space-y-2 pb-2">
-                          <p className="text-label">
-                            Opening {platform} in {countdown}...
-                          </p>
-                          <Progress
-                            value={progress}
-                            className="h-[3px] bg-green/20 [&_.bg-primary]:bg-green w-full"
-                          />
-                        </div>
-                      ),
-                      className: "border border-green bg-black text-green",
-                    });
-                  } else {
-                    clearInterval(progressTimer);
-                    dismiss();
-                  }
-                }, 100);
               }}
               classNames={{
                 root: "border border-green p-4 flex flex-col gap-3",
