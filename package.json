@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@opendatalabs/vana-react": "^0.1.0-feature.e86ffcc",
+    "@opendatalabs/vana-react": "^0.1.0-feature.592dafb",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",

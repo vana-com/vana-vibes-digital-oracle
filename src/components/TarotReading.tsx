@@ -351,9 +351,9 @@ const TarotReading = ({
             <div className="text-center mb-4">
               <VanaAppSocialShareWidget
                 appName="Digital Oracle"
-                shareContent="My data just predicted my future"
+                shareContent="My data just predicted my future."
                 shareEmoji="🔮"
-                funnyNote="What does your data say about the week ahead?"
+                funnyNote="What does your data say about the week ahead? Find out: app.vana.org #datarevolution"
                 title="SHARE YOUR ORACLE READING"
                 hideToast={true}
                 onShare={handleShare}
