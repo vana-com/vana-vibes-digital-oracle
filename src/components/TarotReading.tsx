@@ -1,6 +1,10 @@
 import CareerFortuneLoading from "@/components/CareerFortuneLoading";
-import { LinkedInShareModal } from "@/components/LinkedInShareModal";
+// import { LinkedInShareModal } from "@/components/LinkedInShareModal"; // Disabled pending UX styling
 import { useTarotCards } from "@/hooks/useTarotCards";
+// import { Download } from 'lucide-react'; // For download feature - disabled pending UX
+import { VanaAppSocialShareWidget } from '@opendatalabs/vana-react';
+import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 import { isTestMode } from "@/lib/test-mode";
 import { cn } from "@/lib/utils";
 import {
@@ -37,10 +41,10 @@ const TarotReading = ({
   isLoading = false,
 }: TarotReadingProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [isGeneratingReadings, setIsGeneratingReadings] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [completedReadings, setCompletedReadings] = useState(0);
+  // const [isShareModalOpen, setIsShareModalOpen] = useState(false); // For download modal - disabled pending UX
   const { loading: cardsLoading, error: cardsError } = useTarotCards();
 
   // Initialize cards based on LinkedIn data analysis
@@ -101,6 +105,10 @@ const TarotReading = ({
 
     initializeReading();
   }, [linkedinData, navigate, cardsLoading, cardsError]);
+
+  const handleShare = (platform: string) => {
+    console.log(`Shared on ${platform}`);
+  };
 
   const revealCard = (cardId: string) => {
     setCards((prevCards) =>
@@ -163,7 +171,6 @@ const TarotReading = ({
   const [headerDone, setHeaderDone] = useState(false);
   const [titleDone, setTitleDone] = useState(false);
   const [subtitleDone, setSubtitleDone] = useState(false);
-  const bothDone = titleDone && subtitleDone;
 
   if (!linkedinData) {
     console.log("TarotReading: No linkedinData, isLoading:", isLoading);
@@ -224,21 +231,13 @@ const TarotReading = ({
                 overdrive
                 onDone={() => setHeaderDone(true)}
               />
-              {cards.every((card) => card.isRevealed && card.isCompleted) && (
-                <BlinkButton
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="text-label w-auto text-black bg-green"
-                >
-                  Share to LinkedIn
-                </BlinkButton>
-              )}
             </>
           }
         />
 
         {/* Cards Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:px-12">
-          {cards.map((card, index) => (
+          {cards.map((card) => (
             <button
               key={card.id}
               data-slot="tarot-card"
@@ -342,29 +341,87 @@ const TarotReading = ({
             convergence of ancient wisdom and modern consciousness. Carry
             these sacred insights as you traverse the liminal spaces between
             digital and spiritual realms. */}
-        {cards.every((card) => card.isRevealed && card.isCompleted) && (
+        {cards.length > 0 && cards.every((card) => card.isRevealed && card.isCompleted) && (
           <div
             className={cn(
               "lg:px-12 flex flex-col justify-start lg:min-h-[20vh]",
             )}
           >
-            {/* LinkedIn Share Button */}
-            <button
-              onClick={() => setIsShareModalOpen(true)}
-              className={cn(
-                "text-subheading text-green",
-                "border border-green px-4 py-3",
-                "w-full text-center",
-              )}
-            >
-              Share to LinkedIn
-            </button>
+            {/* Social Sharing */}
+            <div className="text-center mb-4">
+              <VanaAppSocialShareWidget
+                appName="Digital Oracle"
+                shareContent="My data just predicted my future"
+                shareEmoji="🔮"
+                funnyNote="What does your data say about the week ahead?"
+                title="SHARE YOUR ORACLE READING"
+                hideToast={true}
+                onShare={handleShare}
+                onCopySuccess={(platform, _shareText, delayMs) => {
+                  const totalTime = delayMs / 1000;
+                  let countdown = totalTime;
+                  let progress = 100;
+                  
+                  const { update, dismiss } = toast({
+                    title: "Copied to clipboard!",
+                    description: (
+                      <div>
+                        <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
+                        <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
+                      </div>
+                    ),
+                    duration: Infinity,
+                    className: "border-2 border-green bg-black text-green font-mono",
+                  });
+                  
+                  const progressTimer = setInterval(() => {
+                    progress = Math.max(0, progress - (100 / (totalTime * 10)));
+                    countdown = Math.ceil(progress / (100 / totalTime));
+                    
+                    if (progress > 0) {
+                      update({
+                        id: undefined,
+                        title: "Copied to clipboard!",
+                        description: (
+                          <div>
+                            <p className="font-mono text-sm mb-2">Opening {platform} in {countdown}...</p>
+                            <Progress value={progress} className="h-1 bg-green/20 [&_.bg-primary]:bg-green w-full" />
+                          </div>
+                        ),
+                        className: "border-2 border-green bg-black text-green font-mono",
+                      });
+                    } else {
+                      clearInterval(progressTimer);
+                      dismiss();
+                    }
+                  }, 100);
+                }}
+                classNames={{
+                  root: "text-center",
+                  title: "flex items-center justify-center gap-2 mb-6 text-sm text-green font-mono uppercase tracking-wider",
+                  buttons: "flex items-center justify-center gap-4",
+                  button: "w-14 h-14 rounded-full border-2 border-green bg-transparent text-green hover:bg-green hover:text-black transition-all duration-300 flex items-center justify-center cursor-pointer",
+                }}
+                theme={{ iconSize: 20 }}
+              />
+              
+              {/* Download Option - Disabled pending UX styling */}
+              {/* <div className="mt-6 pt-6 border-t border-green/20">
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="mx-auto flex items-center gap-2 px-4 py-2 border border-green text-green hover:bg-green hover:text-black transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Reading</span>
+                </button>
+              </div> */}
+            </div>
           </div>
         )}
       </div>
 
-      {/* LinkedIn Share Modal */}
-      <LinkedInShareModal
+      {/* Reading Download Modal - Disabled pending UX styling */}
+      {/* <LinkedInShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         readings={cards.map((card) => card.reading || "")}
@@ -372,8 +429,7 @@ const TarotReading = ({
           name: card.title,
           image: card.image,
         }))}
-        linkedinData={linkedinData}
-      />
+      /> */}
     </>
   );
 };
