@@ -146,18 +146,54 @@ const Landing = ({ onDataConnect }: LandingProps) => {
   }, []);
 
   const parseJsonWithJSON5 = (data: string): LinkedInLandingData | null => {
+    // Robustly handle: code-fenced JSON, raw JSON text, JSON string containing JSON, and JSON5.
+    // Avoid manual unescaping which can corrupt strings with embedded quotes.
+    const stripCodeFences = (s: string) =>
+      s
+        .trim()
+        .replace(/^\s*```(?:json5?|json)?\s*\n?/i, "")
+        .replace(/\n?\s*```\s*$/i, "");
+
     try {
-      let cleaned = data.replace(/```(json)?\s*/gi, "").replace(/```/g, "");
-      if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
-        cleaned = cleaned.slice(1, -1);
+      let s = stripCodeFences(data);
+
+      // 1) Try strict JSON first
+      try {
+        const topLevel = JSON.parse(s);
+        if (typeof topLevel === "string") {
+          // Double-encoded: JSON string that contains JSON
+          const inner = stripCodeFences(topLevel);
+          try {
+            return JSON.parse(inner) as LinkedInLandingData;
+          } catch {}
+          try {
+            return JSON5.parse(inner) as LinkedInLandingData;
+          } catch {}
+        } else if (typeof topLevel === "object" && topLevel !== null) {
+          return topLevel as LinkedInLandingData;
+        }
+      } catch {}
+
+      // 2) If not valid JSON at the top level, attempt to extract the object substring
+      const firstBrace = s.indexOf("{");
+      const lastBrace = s.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        const objStr = s.slice(firstBrace, lastBrace + 1);
+        try {
+          return JSON.parse(objStr) as LinkedInLandingData;
+        } catch {}
+        try {
+          return JSON5.parse(objStr) as LinkedInLandingData;
+        } catch {}
       }
-      cleaned = cleaned.replace(/\\"/g, '"').replace(/\\n/g, "\n");
-      return JSON5.parse(cleaned);
+
+      // 3) Final fallback: try JSON5 on the whole string
+      return JSON5.parse(s) as LinkedInLandingData;
     } catch (err) {
       console.error(
         "Invalid JSON after cleaning:",
         err,
-        "\nCleaned string was:\n",
+        "\nRaw string was:\n",
         data,
       );
       return null;
