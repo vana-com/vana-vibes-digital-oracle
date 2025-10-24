@@ -39,6 +39,9 @@ interface LinkedInLandingData {
   [key: string]: unknown;
 }
 
+const VANA_IFRAME_ORIGIN = "https://dev.app.vana.com";
+const VANA_SCHEMA_ID = 24;
+
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
 
 STEP 1: ANALYZE THE DATA
@@ -127,20 +130,6 @@ const testPayload: LinkedInLandingData = {
 const Landing = ({ onDataConnect }: LandingProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Determine Vana environment configuration
-  const vanaConfig = useMemo(() => {
-    const host = typeof window !== "undefined" ? window.location.hostname : "";
-    // Vite: import.meta.env.DEV is true only in dev; combine with host checks
-    const isDev =
-      import.meta.env.DEV ||
-      host.startsWith("dev.") ||
-      host.includes("localhost");
-
-    return isDev
-      ? { origin: "https://dev.app.vana.com", schemaId: 24 }
-      : { origin: "https://app.vana.com", schemaId: 24 };
-  }, []);
 
   const parseJsonWithJSON5 = (data: string): LinkedInLandingData | null => {
     // Robustly handle: code-fenced JSON, raw JSON text, JSON string containing JSON, and JSON5.
@@ -271,8 +260,8 @@ const Landing = ({ onDataConnect }: LandingProps) => {
         {/* Only shown on is open, but otherwise available in the DOM and doing fetch work behind the scenes. */}
         <VanaAppUploadWidget
           appId="com.lovable.tarot-oracle"
-          iframeOrigin={vanaConfig.origin}
-          schemaId={vanaConfig.schemaId}
+          iframeOrigin={VANA_IFRAME_ORIGIN}
+          schemaId={VANA_SCHEMA_ID}
           operation="llm_inference"
           operationParams={{ prompt: vanaPrompt }}
           isOpen={showWidget}
