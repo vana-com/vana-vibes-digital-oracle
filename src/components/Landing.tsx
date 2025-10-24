@@ -3,7 +3,7 @@ import { LinkedInData } from "@/lib/linkedin-data.type";
 import { cn } from "@/lib/utils";
 import { VanaAppUploadWidget } from "@opendatalabs/vana-react";
 import JSON5 from "json5";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LandingCard } from "./LandingCard";
 import { ScreenWrapper } from "./ScreenWrapper";
@@ -39,7 +39,8 @@ interface LinkedInLandingData {
   [key: string]: unknown;
 }
 
-const VANA_IFRAME_ORIGIN = "https://dev.app.vana.com";
+const VANA_IFRAME_ORIGIN =
+  "https://vana-app-git-feat-agents-vana-react-opendatalabs.vercel.app";
 const VANA_SCHEMA_ID = 24;
 
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
