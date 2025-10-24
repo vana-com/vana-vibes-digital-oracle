@@ -1,13 +1,12 @@
 import { useToast } from "@/hooks/use-toast";
 import { LinkedInData } from "@/lib/linkedin-data.type";
 import { cn } from "@/lib/utils";
+import { VanaAppUploadWidget } from "@opendatalabs/vana-react";
 import JSON5 from "json5";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LandingCard } from "./LandingCard";
 import { ScreenWrapper } from "./ScreenWrapper";
-import VanaWidget from "./VanaWidget";
-import BlockLoader from "./BlockLoader";
 
 interface LandingProps {
   onDataConnect?: (data: unknown) => void;
@@ -101,8 +100,6 @@ const USE_TEST_PAYLOAD =
     .trim()
     .toLowerCase() === "true";
 
-// Deprecated: legacy/new widget UI toggle removed. We'll adjust UI when new widget is ready.
-
 const testPayload: LinkedInLandingData = {
   firstName: "Demo",
   lastName: "User",
@@ -142,7 +139,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
 
     return isDev
       ? { origin: "https://dev.app.vana.com", schemaId: 24 }
-      : { origin: "https://app.vana.com" };
+      : { origin: "https://app.vana.com", schemaId: 24 };
   }, []);
 
   const parseJsonWithJSON5 = (data: string): LinkedInLandingData | null => {
@@ -155,7 +152,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
         .replace(/\n?\s*```\s*$/i, "");
 
     try {
-      let s = stripCodeFences(data);
+      const s = stripCodeFences(data);
 
       // 1) Try strict JSON first
       try {
@@ -239,10 +236,6 @@ const Landing = ({ onDataConnect }: LandingProps) => {
 
   // Control when the widget appears (always after Accept)
   const [showWidget, setShowWidget] = useState(false);
-  const shouldRenderWidget = useMemo(
-    () => !USE_TEST_PAYLOAD && showWidget,
-    [showWidget],
-  );
 
   const handleAccept = useCallback(() => {
     console.log("handleAccept called");
@@ -273,42 +266,30 @@ const Landing = ({ onDataConnect }: LandingProps) => {
           "flex flex-col justify-start lg:items-center lg:justify-center ",
         )}
       >
-        {/* When VanaWidget works as intended, it will show as a dialog above this page, so we will not need to conditionally hide the LandingCard */}
-        {!showWidget && <LandingCard handleAccept={handleAccept} />}
+        <LandingCard handleAccept={handleAccept} />
 
-        {/* Vana Data Connection */}
-        {shouldRenderWidget ? (
-          <VanaWidget
-            appId="com.lovable.tarot-oracle"
-            onResult={handleVanaResult}
-            onError={(error) => {
-              console.error("Vana Widget Error:", error);
-              toast({
-                title: "Connection Error",
-                description: "Something went wrong. Please try again.",
-                variant: "destructive",
-              });
-            }}
-            onAuth={(wallet) => console.log("User authenticated:", wallet)}
-            iframeOrigin={vanaConfig.origin}
-            {...(vanaConfig.schemaId && {
-              schemaId: vanaConfig.schemaId,
-            })}
-            prompt={vanaPrompt}
-            loadingNode={
-              <div
-                className="flex items-center justify-center h-full w-full mix-blend-color-dodge"
-                aria-live="polite"
-              >
-                <div className="text-label text-green flex items-center gap-4">
-                  <BlockLoader mode={6} />
-                  <span>Loading</span>
-                </div>
-              </div>
-            }
-            className="max-w-[600px] mx-auto"
-          />
-        ) : null}
+        {/* Only shown on is open, but otherwise available in the DOM and doing fetch work behind the scenes. */}
+        <VanaAppUploadWidget
+          appId="com.lovable.tarot-oracle"
+          iframeOrigin={vanaConfig.origin}
+          schemaId={vanaConfig.schemaId}
+          operation="llm_inference"
+          operationParams={{ prompt: vanaPrompt }}
+          isOpen={showWidget}
+          onAuth={(wallet) => console.log("User authenticated:", wallet)}
+          onResult={handleVanaResult}
+          onError={(error) => {
+            console.error("Vana Widget Error:", error);
+            toast({
+              title: "Connection Error",
+              description: "Something went wrong. Please try again.",
+              variant: "destructive",
+            });
+          }}
+          onClose={() => {
+            setShowWidget(false);
+          }}
+        />
       </div>
     </ScreenWrapper>
   );
