@@ -39,8 +39,8 @@ interface LinkedInLandingData {
   [key: string]: unknown;
 }
 
-// You don't need to supply this, but you can also use it to test
-const VANA_IFRAME_ORIGIN = "https://app.vana.com";
+// Defaults to app.vana.com in prod
+const VANA_IFRAME_ORIGIN = "https://dev.app.vana.com";
 const VANA_SCHEMA_ID = 24;
 
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
