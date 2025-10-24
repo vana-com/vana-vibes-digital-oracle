@@ -39,8 +39,8 @@ interface LinkedInLandingData {
   [key: string]: unknown;
 }
 
-const VANA_IFRAME_ORIGIN =
-  "https://vana-app-git-feat-agents-vana-react-opendatalabs.vercel.app";
+// You don't need to supply this, but you can also use it to test
+const VANA_IFRAME_ORIGIN = "https://app.vana.com";
 const VANA_SCHEMA_ID = 24;
 
 const vanaPrompt = `You are an AI assistant that extracts and structures LinkedIn profile data.
