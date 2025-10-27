@@ -264,34 +264,32 @@ const Landing = ({ onDataConnect }: LandingProps) => {
         <LandingCard handleAccept={handleAccept} />
 
         {/* Vana Data Connection - Always in DOM, controlled by isOpen */}
-        {!USE_TEST_PAYLOAD && (
-          <VanaAppUploadWidget
-            appId="com.lovable.tarot-oracle"
-            schemaId={vanaConfig.schemaId}
-            iframeOrigin={vanaConfig.origin}
-            operation="llm_inference"
-            operationParams={{
-              prompt: vanaPrompt,
-              response_format: { type: "json_object" },
-            }}
-            isOpen={showWidget}
-            onClose={() => setShowWidget(false)}
-            onResult={handleVanaResult}
-            onError={(error) => {
-              console.error("Vana Widget Error:", error);
-              toast({
-                title: "Connection Error",
-                description: "Something went wrong. Please try again.",
-                variant: "destructive",
-              });
-              setShowWidget(false);
-            }}
-            onAuth={(wallet) => console.log("User authenticated:", wallet)}
-            filters={{
-              [vanaConfig.schemaId.toString()]: "$.publicData",
-            }}
-          />
-        )}
+        <VanaAppUploadWidget
+          appId="com.lovable.tarot-oracle"
+          schemaId={vanaConfig.schemaId}
+          iframeOrigin={vanaConfig.origin}
+          operation="llm_inference"
+          operationParams={{
+            prompt: vanaPrompt,
+            response_format: { type: "json_object" },
+          }}
+          isOpen={showWidget}
+          onClose={() => setShowWidget(false)}
+          onResult={handleVanaResult}
+          onError={(error) => {
+            console.error("Vana Widget Error:", error);
+            toast({
+              title: "Connection Error",
+              description: "Something went wrong. Please try again.",
+              variant: "destructive",
+            });
+            setShowWidget(false);
+          }}
+          onAuth={(wallet) => console.log("User authenticated:", wallet)}
+          filters={{
+            [vanaConfig.schemaId.toString()]: "$.publicData",
+          }}
+        />
       </div>
     </ScreenWrapper>
   );
