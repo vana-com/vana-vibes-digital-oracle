@@ -6,8 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LandingCard } from "./LandingCard";
 import { ScreenWrapper } from "./ScreenWrapper";
-import VanaWidget from "./VanaWidget";
-import BlockLoader from "./BlockLoader";
+import { VanaAppUploadWidget } from "@opendatalabs/vana-react";
 
 interface LandingProps {
   onDataConnect?: (data: unknown) => void;
@@ -232,7 +231,6 @@ const Landing = ({ onDataConnect }: LandingProps) => {
 
   // Control when the widget appears (always after Accept)
   const [showWidget, setShowWidget] = useState(false);
-  const shouldRenderWidget = useMemo(() => !USE_TEST_PAYLOAD && showWidget, [showWidget]);
 
   const handleAccept = useCallback(() => {
     console.log("handleAccept called");
@@ -263,13 +261,21 @@ const Landing = ({ onDataConnect }: LandingProps) => {
           "flex flex-col justify-start lg:items-center lg:justify-center ",
         )}
       >
-        {/* When VanaWidget works as intended, it will show as a dialog above this page, so we will not need to conditionally hide the LandingCard */}
-        {!showWidget && <LandingCard handleAccept={handleAccept} />}
+        <LandingCard handleAccept={handleAccept} />
 
-        {/* Vana Data Connection */}
-        {shouldRenderWidget ? (
-          <VanaWidget
+        {/* Vana Data Connection - Always in DOM, controlled by isOpen */}
+        {!USE_TEST_PAYLOAD && (
+          <VanaAppUploadWidget
             appId="com.lovable.tarot-oracle"
+            schemaId={vanaConfig.schemaId}
+            iframeOrigin={vanaConfig.origin}
+            operation="llm_inference"
+            operationParams={{
+              prompt: vanaPrompt,
+              response_format: { type: "json_object" },
+            }}
+            isOpen={showWidget}
+            onClose={() => setShowWidget(false)}
             onResult={handleVanaResult}
             onError={(error) => {
               console.error("Vana Widget Error:", error);
@@ -278,24 +284,14 @@ const Landing = ({ onDataConnect }: LandingProps) => {
                 description: "Something went wrong. Please try again.",
                 variant: "destructive",
               });
+              setShowWidget(false);
             }}
             onAuth={(wallet) => console.log("User authenticated:", wallet)}
-            iframeOrigin={vanaConfig.origin}
-            {...(vanaConfig.schemaId && {
-              schemaId: vanaConfig.schemaId,
-            })}
-            prompt={vanaPrompt}
-            loadingNode={
-              <div className="flex items-center justify-center h-full w-full mix-blend-color-dodge" aria-live="polite">
-                <div className="text-label text-green flex items-center gap-4">
-                  <BlockLoader mode={6} />
-                  <span>Loading</span>
-                </div>
-              </div>
-            }
-            className="max-w-[600px] mx-auto"
+            filters={{
+              [vanaConfig.schemaId.toString()]: "$.publicData",
+            }}
           />
-        ) : null}
+        )}
       </div>
     </ScreenWrapper>
   );
