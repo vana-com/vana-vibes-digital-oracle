@@ -135,14 +135,12 @@ const Landing = ({ onDataConnect }: LandingProps) => {
   const vanaConfig = useMemo(() => {
     const host = typeof window !== "undefined" ? window.location.hostname : "";
     // Vite: import.meta.env.DEV is true only in dev; combine with host checks
-    const isDev =
-      import.meta.env.DEV ||
-      host.startsWith("dev.") ||
-      host.includes("localhost");
+    const isDev = import.meta.env.DEV || host.startsWith("dev.") || host.includes("localhost");
+    const isProd = host === "digitaloracleapp.com";
 
-    return isDev
-      ? { origin: "https://dev.app.vana.com", schemaId: 24 }
-      : { origin: "https://app.vana.com" };
+    return isProd
+      ? { origin: "https://app.vana.com", schemaId: 5 }
+      : { origin: "https://dev.app.vana.com", schemaId: 24 };
   }, []);
 
   const parseJsonWithJSON5 = (data: string): LinkedInLandingData | null => {
@@ -190,12 +188,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
       // 3) Final fallback: try JSON5 on the whole string
       return JSON5.parse(s) as LinkedInLandingData;
     } catch (err) {
-      console.error(
-        "Invalid JSON after cleaning:",
-        err,
-        "\nRaw string was:\n",
-        data,
-      );
+      console.error("Invalid JSON after cleaning:", err, "\nRaw string was:\n", data);
       return null;
     }
   };
@@ -239,10 +232,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
 
   // Control when the widget appears (always after Accept)
   const [showWidget, setShowWidget] = useState(false);
-  const shouldRenderWidget = useMemo(
-    () => !USE_TEST_PAYLOAD && showWidget,
-    [showWidget],
-  );
+  const shouldRenderWidget = useMemo(() => !USE_TEST_PAYLOAD && showWidget, [showWidget]);
 
   const handleAccept = useCallback(() => {
     console.log("handleAccept called");
@@ -296,10 +286,7 @@ const Landing = ({ onDataConnect }: LandingProps) => {
             })}
             prompt={vanaPrompt}
             loadingNode={
-              <div
-                className="flex items-center justify-center h-full w-full mix-blend-color-dodge"
-                aria-live="polite"
-              >
+              <div className="flex items-center justify-center h-full w-full mix-blend-color-dodge" aria-live="polite">
                 <div className="text-label text-green flex items-center gap-4">
                   <BlockLoader mode={6} />
                   <span>Loading</span>
